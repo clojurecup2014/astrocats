@@ -1,43 +1,58 @@
 (ns astrocats.echo
   (:require [astrocats.map :as ac-map]
+            [astrocats.cats :as ac-cats]
             [ring-jetty.util.ws :as ws]
             [clojure.data.json :refer [write-str read-str]]))
 
 (def all-sessions (ref #{}))
+(def default-imgs 
+  (->> (range 0 10) (map #(str "cat" %))))
 
-(def default-blocks
-  [[10 30 240 10]
-   [40 60 170 10]
-   [70 90 260 10]
-   [100 140 180 10]
-   [130 150 260 10]
-   [-170 150 170 10]
-   [-110 -80 150 10]
-   [-140 -130 260 10]
-   [-90 -65 250 10]
-   [-40 -25 280 10]
-   [-35 -5 150 10]])
-
-(def default-map (ac-map/init-map default-blocks))
+(defn rand-img 
+  [imgs]
+  (let [new-img (ac-cats/init-cat (rand-nth default-imgs)
+    (if (imgs new-img)
+      (rand-img imgs)
+      new-img))))
 
 (defn- on-connect [session]
-  ;; send game map
-  (->> (assoc-in default-map [:type] "map")
-       write-str 
-       (ws/send! session))
-  (dosync
-   (alter all-sessions conj session)))
+  (let [imgs (if (seq @ac-map/cats)
+               (->> @ac-map/cats (map :img) set))
+        b (rand-nth blocks)
+        new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)  
+                                  (+ (:radius b) 10) 0 0
+                                  (rand-img imgs))]
+    ;; send cat
+    (->> (assoc-in new-cat  [:type] "cat")
+         write-str
+         (ws/send! session))
+    ;; add new-cat
+    (dosync 
+      (alter ac-map/cats assoc session new-cat))
+    ;; send blocks 
+    (->> (assoc-in blocks [:type] "blocks")
+         write-str
+         (ws/send! session))
+    ;; send game map
+    (->> (assoc-in default-map [:type] "map")
+         write-str 
+         (ws/send! session))
+    (dosync
+      (alter all-sessions conj session))))
 
 (defn- on-close [session code reason]
   (dosync
    (alter all-sessions disj session)))
 
 (defn- on-text [session message]
-  (doseq [s @all-sessions]
-    (ws/send! s (str
-                 (.. session getSession getRemoteAddress getHostName)
-                 ":"
-                 message))))
+  (let [dt (->> message read-str)]
+    (case (:type dt)
+      :cat nil
+      (doseq [s @all-sessions]
+        (ws/send! s (str
+                     (.. session getSession getRemoteAddress getHostName)
+                     ":"
+                     message))))))
 
 (defn- on-bytes [session payload offset len]
   nil)

@@ -1,7 +1,11 @@
 (ns astrocats.map
-  (:require [clojure.data.json :refer [write-str read-str]]))
+  (:require [clojure.data.json :refer [write-str read-str]]
+            [ring-jetty.util.ws :as ws]))
 
 (defrecord Coin [id radius theta exist])
+
+(def cats (ref {}))
+(def coins (ref #{}))
 
 (defn init-coin
   [theta radius]
@@ -17,12 +21,39 @@
                :height height}))
 
 (defrecord Map [width height ground-y 
-                center-x center-y blocks])
+                center-x center-y])
 
 (defn init-map
-  ([blocks]
-    (init-map 800 600 80 blocks))
-  ([width height ground blocks]
+  ([]
+    (init-map 800 600 80))
+  ([width height ground]
     (map->Map {:width width :height height :ground-y ground 
-               :center-x (/ width 2) :center-y 450
-               :blocks blocks})))
+               :center-x (/ width 2) :center-y 450})))
+
+(def default-blocks
+  [[10 30 240 10]
+   [40 60 170 10]
+   [70 90 260 10]
+   [100 140 180 10]
+   [130 150 260 10]
+   [-170 150 170 10]
+   [-110 -80 150 10]
+   [-140 -130 260 10]
+   [-90 -65 250 10]
+   [-40 -25 280 10]
+   [-35 -5 150 10]])
+
+;; game blocks
+(def blocks (->> default-blocks (map #(apply init-block %))))
+;; game map
+(def default-map (ac-map/init-map))
+
+(defn send-cats!
+  (doall (pmap #(->> (assoc-in (val %) [:type] "cat")
+                     write-str
+                     (ws/send! (key %))) @cats)))
+
+(defn send-coins
+  (doall (pmap #(->> {:type "coins" :coins @coins} 
+                     write-str 
+                     (ws/send! %)) 

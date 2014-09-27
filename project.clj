@@ -14,7 +14,8 @@
   :plugins [[lein-ring-jetty "0.1.0-SNAPSHOT"]
             [lein-cljsbuild "1.0.3"]]
   :source-paths ["src/clj"]
-  :ring {:handler astrocats.handler/app
+  :ring {:init astrocats.handler/init
+         :handler astrocats.handler/app
          :websockets {"/echo" astrocats.echo/handler}}
   :profiles
   {:dev {:dependencies [[javax.servlet/javax.servlet-api "3.1.0"]
