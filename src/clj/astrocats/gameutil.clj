@@ -48,8 +48,8 @@
                             false)
         is-hitfrom-side (if (> (count same-height-blocks) 0)
                           (let [closest-block (first same-height-blocks)]
-                            (and (< (closest-block :start) (+ (cat :theta) (/ (2 now-width-rad))))
-                                 (> (closest-block :end) (- (cat :theta) (/ 2 now-width-rad))))
+                            (and (< (closest-block :start) (+ (cat :theta) (/ (2.0 now-width-rad))))
+                                 (> (closest-block :end) (- (cat :theta) (/ 2.0 now-width-rad))))
                             )
                           false)
         new-acc-x (if is-hitfrom-side
@@ -96,7 +96,7 @@
 (defn get-collisioned-coins
   [coin cats]
   (loop [i 0
-         max (count cats)
+         max (- (count cats) 1)
          c coin]
     (if (< max i)
       c
@@ -106,29 +106,12 @@
 (defn get-collisioned-cats
   [cat coins]
   (loop [i 0
-         max (count coins)
+         max (- (count coins) 1)
          c cat]
     (if (< max i)
       c
       (recur (+ 1 i) max (first (calc-coin-collision c (nth coins i))))
   )))
-
-(defn calc-cats-collisions
-  [cats]
-  (mapv
-   (fn [c]
-     (let [targets (filter #(not= % c) cats)]
-       (loop [rtargets targets]
-         (if (empty? rtargets)
-           c
-           (let [t (first targets)
-                 [nc nt] (calc-collision c t)]
-             (if (not= c nc) 
-               nc                      ;; when collision
-               (recur (rest rtargets)) ;; when NOT collision
-               ))))))
-   cats)
-  )
 
 
 (defn calc-collision
@@ -189,6 +172,24 @@
     )
   )
 
+
+(defn calc-cats-collisions
+  [cats]
+  (mapv
+   (fn [c]
+     (let [targets (filter #(not= % c) cats)]
+       (loop [rtargets targets]
+         (if (empty? rtargets)
+           c
+           (let [t (first targets)
+                 [nc nt] (calc-collision c t)]
+             (if (not= c nc) 
+               nc                      ;; when collision
+               (recur (rest rtargets)) ;; when NOT collision
+               ))))))
+   cats)
+  )
+
 (defn get-now-block
   [blocks id]
   (first (filter #(= (% :id) id) blocks)))
@@ -222,7 +223,7 @@
                      :rad-y 0
                      :acc-y (cat :acc-y)}
                     )
-        new-param2 (if (> (map :ground-y) (new-param :radius))
+        new-param2 (if (> (maps :ground-y) (new-param :radius))
                      (-> new-param
                          (assoc-in [:acc-y] 0)
                          (assoc-in [:life] 0)
@@ -231,13 +232,13 @@
                      )
         tmp-x (+ (cat :x) (new-param2 :rad-x) theta-x)
         tmp-y (+ (cat :y) (new-param2 :rad-y) theta-y)
-        tmp-r (Math/sprt (+ (Math/pow (- tmp-x (maps :center-x)) 2) 
+        tmp-r (Math/sqrt (+ (Math/pow (- tmp-x (maps :center-x)) 2) 
                             (Math/pow (- tmp-y (maps :center-y)) 2)))
         ]
     (-> cat
         (assoc-in [:radius] (new-param2 :radius))
         (assoc-in [:acc-y] (new-param2 :acc-y))
-        (assoc-in [:on] (new-params2 :on))
+        (assoc-in [:on] (new-param2 :on))
         (assoc-in [:x] (+ (/ (* (new-param2 :radius) 
                               (- tmp-x (maps :center-x)))
                              tmp-r)
@@ -251,15 +252,14 @@
 (defn calc-block-ground-collision
   [cat blocks maps]
   (-> cat
-      (calc-on blocks map)
+      (calc-on blocks maps)
       (calc-block-collision blocks)))
-  )
 
 (defn calc-collisions
   [cats blocks coins maps]
-  (let [cat-blocks (mapv (fn [c] (calc-block-gorund-collision c blocks map)) cats)
+  (let [cat-blocks (mapv (fn [c] (calc-block-ground-collision c blocks map)) cats)
         result-cats (mapv (fn [c] (get-collisioned-cats c coins)) cat-blocks)
-        result-coins (mapv (fn [c] (get-collisioned-coins coin cat-blocks)) coins)
+        result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)
         ]
     [(calc-cats-collisions result-cats)
      result-coins]))
