@@ -1,6 +1,7 @@
 (ns astrocats.echo
   (:require [astrocats.map :as ac-maps]
             [astrocats.cats :as ac-cats]
+            [astrocats.macros :refer [locksync]]
             [ring-jetty.util.ws :as ws]
             [clojure.data.json :refer [write-str read-str]]))
 
@@ -31,7 +32,7 @@
          write-str
          (ws/send! session))
     ;; add new-cat
-    (dosync 
+    (locksync ac-cats/cats 
       (alter ac-cats/cats assoc session new-cat))
     ;; send blocks 
     (->> {:type "blocks" :blocks ac-maps/blocks}
@@ -47,13 +48,13 @@
 (defn- on-close [session code reason]
   (dosync
    (alter all-sessions disj session))
-  (dosync
+  (locksync ac-cats/cats
    (alter ac-cats/cats dissoc session)))
 
 (defn- on-text [session message]
   (let [dt (-> message (read-str :key-fn keyword))]
     (case (:type dt)
-      "cat" (dosync
+      "cat" (locksync ac-cats/cats
               (alter ac-cats/cats #(case (:key dt)
                                     "left" (update-in % [session] ac-cats/left)
                                     "right" (update-in % [session] ac-cats/right)
@@ -71,7 +72,7 @@
   (.printStackTrace e)
   (dosync
    (alter all-sessions disj session))
-  (dosync
+  (locksync ac-cats/cats
    (alter ac-cats/cats dissoc session)))
 
 (def handler
