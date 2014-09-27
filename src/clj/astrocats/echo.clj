@@ -10,7 +10,7 @@
 
 (defn rand-img 
   [imgs]
-  (let [new-img (ac-cats/init-cat (rand-nth default-imgs))]
+  (let [new-img (rand-nth default-imgs)]
     (if (imgs new-img)
       (rand-img imgs)
       new-img)))
