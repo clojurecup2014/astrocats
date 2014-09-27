@@ -5,6 +5,8 @@
 
 (declare score)
 
+(def rankin 100)
+
 (defentity score)
 
 (defn now-time []
@@ -15,10 +17,18 @@
   (select score (where (> :id 0))
                 (order :score)))
 
+(defn rankin?
+  [score]
+  (let [ranking (get-all-ranking)
+        rank (mapv (fn [t] (if (> score (t :score)) 1 0)) ranking)]
+    (.indexOf rank 1)
+    ))
+
 (defn add-ranking
-  [name score]
+  [name score cattype]
   (let [add-time (now-time)]
     (insert member
             (values {:name name
                      :score score
+                     :cattype cattype
                      :updated_at add-time}))))
