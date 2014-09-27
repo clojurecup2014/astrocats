@@ -13,6 +13,7 @@ CREATE  TABLE IF NOT EXISTS `astrocats`.`score` (
   `name` VARCHAR(255) NOT NULL ,
   `score` INT NOT NULL ,
   `update_at` BIGINT NOT NULL ,
+  `cattype` INT NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
