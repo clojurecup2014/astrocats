@@ -4,17 +4,32 @@
   (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
   )
 
+
+(defn- get-closest-block-with-r [cat blocks]
+  (let [sorted (sort #(compare (Math/abs (- (cat :radius) (%1 :radius)))
+                               (Math/abs (- (cat :radius) (%2 :radius)))) blocks)]
+    (first sorted)
+    ))
+
+
+(defn- get-closest-block-with-theta [cat blocks]
+  (let [sorted (sort #(compare (Math/abs (- (cat :theta) (* (+ (%1 :start) (%1 :end)) 0.5)))
+                               (Math/abs (- (cat :theta) (* (+ (%2 :start) (%2 :end)) 0.5)))) blocks)]
+    (first sorted)
+    ))
+
+
 (defn calc-block-collision
   [cat blocks]
   (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
-        same-rad-blocks (for [b blocks :when  (if (and (< (b :start) (+ (cat :theta) (/ now-width-rad 2)))
-                                                       (> (b :end) (- (cat :theta) (/ now-width-rad 2))))
+        same-rad-blocks (for [b blocks :when  (if (and (< (b :start) (+ (cat :theta) (* now-width-rad 0.5)))
+                                                       (> (b :end) (- (cat :theta) (* now-width-rad 0.5))))
                                                 b)] b)
         same-height-blocks (for [b blocks :when  (if (and (< (b :radius) (+ (cat :radius) (* 0.75 (cat :height))))
                                                        (> (b :radius) (+ (cat :radius) (* 0.25 (cat :height)))))
                                                 b)] b)
         hitfrom-top (if (> (count same-rad-blocks) 0)
-                         (let [closest-block (first same-rad-blocks)]
+                         (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
                            (if (and (> (closest-block :radius) (cat :radius))
                                 (< (- (closest-block :radius) (cat :radius)) (cat :radius))
                                 (< (- (cat :raduis) (cat :preradius)) 0))
