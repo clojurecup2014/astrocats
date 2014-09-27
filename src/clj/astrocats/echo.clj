@@ -11,17 +11,20 @@
 (defn rand-img 
   [imgs]
   (let [new-img (rand-nth default-imgs)]
-    (if (imgs new-img)
-      (rand-img imgs)
-      new-img)))
+    (if (seq imgs)
+      (if (imgs new-img)
+        (rand-img imgs)
+        new-img))))
 
 (defn- on-connect [session]
   (let [imgs (if (seq @ac-cats/cats)
                (->> @ac-cats/cats (map :img) set))
         b (rand-nth ac-maps/blocks)
+        old-cat (get ac-cats/cats session)
         new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)  
                                   (+ (:radius b) 10) 0 0
-                                  (rand-img imgs))]
+                                  (rand-img imgs) ac-maps/default-map
+                                  (:x old-cat) (:y old-cat) (:raduis old-cat))]
     ;; send cat
     (->> (assoc-in new-cat  [:type] "cat")
          write-str
@@ -30,7 +33,7 @@
     (dosync 
       (alter ac-cats/cats assoc session new-cat))
     ;; send blocks 
-    (->> (assoc-in ac-maps/blocks [:type] "blocks")
+    (->> {:type "blocks" :blocks ac-maps/blocks}
          write-str
          (ws/send! session))
     ;; send game map
