@@ -64,8 +64,10 @@
                                   (- (:x this) (:center-x game-map)))
                                 (Math/pow 2)
                                 Math/sqrt))
-        (assoc-in [:theta] (Math/atan2 (- (:x this) (:center-x game-map))
-                                       (- (:center-y game-map) (:y this))))
+        (assoc-in [:theta] (double 
+                            (/ (* 180 (Math/atan2 (- (:x this) (:center-x game-map))
+                                                  (- (:center-y game-map) (:y this))))
+                               Math/PI)))
         (update-in [:acc-x] #(* % 0.9))
         .-update-acc .-update-acc-zero))))
 

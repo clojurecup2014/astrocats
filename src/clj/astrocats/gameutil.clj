@@ -189,9 +189,75 @@
     )
   )
 
+(defn get-now-block
+  [blocks id]
+  (first (filter #(= (% :id) id) blocks)))
+
+(defn calc-on
+  [cat blocks maps]
+  (let [theta (/ (* (cat :theta) Math/PI) 180.0)
+        theta-x (* (cat :acc-x) (Math/cos theta))
+        theta-y (* (cat :acc-x) (Math/sin theta))
+        on (if (and (> (count (cat :on)) 0)
+                    (not= (cat :on) "ground"))
+             (let [nowblock (get-now-block blocks (cat :on))]
+               (if (or 
+                    (> (nowblock :start) (cat :theta))
+                    (< (nowblock :end) (cat :theta)))
+                 ""
+                 (cat :theta)
+               ))
+             "")
+        new-param (if (= on "")
+                    {:radius (- (cat :radius) (cat :acc-y)) 
+                     :rad-x (* (cat :acc-y) (Math/sin theta) -1)
+                     :rad-y (* (cat :acc-y) (Math/cos theta))
+                     :acc-y (if (< (cat :acc-y) 0)
+                              (+ (cat :acc-y) 0.5)
+                              (if (> (cat :acc-y) 3.5)
+                                (+ (cat :acc-y) 0.01)
+                                (+ (cat :acc-y) 0.25)))}
+                    {:radius (cat :radius)
+                     :rad-x 0
+                     :rad-y 0
+                     :acc-y (cat :acc-y)}
+                    )
+        new-param2 (if (> (map :ground-y) (new-param :radius))
+                     (-> new-param
+                         (assoc-in [:acc-y] 0)
+                         (assoc-in [:life] 0)
+                         (assoc-in [:on] "ground"))
+                     new-param
+                     )
+        tmp-x (+ (cat :x) (new-param2 :rad-x) theta-x)
+        tmp-y (+ (cat :y) (new-param2 :rad-y) theta-y)
+        tmp-r (Math/sprt (+ (Math/pow (- tmp-x (maps :center-x)) 2) 
+                            (Math/pow (- tmp-y (maps :center-y)) 2)))
+        ]
+    (-> cat
+        (assoc-in [:radius] (new-param2 :radius))
+        (assoc-in [:acc-y] (new-param2 :acc-y))
+        (assoc-in [:on] (new-params2 :on))
+        (assoc-in [:x] (+ (/ (* (new-param2 :radius) 
+                              (- tmp-x (maps :center-x)))
+                             tmp-r)
+                          (maps :center-x)))
+        (assoc-in [:y] (+ (/ (* (new-param2 :radius) 
+                              (- tmp-y (maps :center-y)))
+                             tmp-r)
+                          (maps :center-y)))
+        )))
+
+(defn calc-block-ground-collision
+  [cat blocks maps]
+  (-> cat
+      (calc-on blocks map)
+      (calc-block-collision blocks)))
+  )
+
 (defn calc-collisions
-  [cats blocks coins]
-  (let [cat-blocks (mapv (fn [c] (calc-block-collision c blocks)) cats)
+  [cats blocks coins maps]
+  (let [cat-blocks (mapv (fn [c] (calc-block-gorund-collision c blocks map)) cats)
         result-cats (mapv (fn [c] (get-collisioned-cats c coins)) cat-blocks)
         result-coins (mapv (fn [c] (get-collisioned-coins coin cat-blocks)) coins)
         ]
