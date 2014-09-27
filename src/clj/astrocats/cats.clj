@@ -1,5 +1,9 @@
 (ns astrocats.cats
-  (:require [astrocats.util :refer [now]]))
+  (:require [astrocats.util :refer [now]]
+            [ring-jetty.util.ws :as ws]
+            [clojure.data.json :refer [write-str read-str]]))
+
+(def cats (ref {}))
 
 (defprotocol ICat
   (jump [this])
@@ -50,8 +54,8 @@
   (update [this game-map]
     (let [now-time (now)]
       (-> this
-        (-update-hit now-time)
-        (-update-energy now-time)
+        (.-update-hit now-time)
+        (.-update-energy now-time)
         (assoc-in [:pre-x] (:x this))
         (assoc-in [:pre-y] (:y this))
         (assoc-in [:pre-radius] (:radius this))
@@ -63,7 +67,7 @@
         (assoc-in [:theta] (Math/atan2 (- (:x this) (:center-x game-map))
                                        (- (:center-y game-map) (:y this))))
         (update-in [:acc-x] #(* % 0.9))
-        -update-acc -update-acc-zero))))
+        .-update-acc .-update-acc-zero))))
 
 (defn init-cat
   [theta radius acc-x acc-y img game-map 
@@ -80,3 +84,9 @@
                :hit 0 :coin 0 :energy 5 :charge-start 0
                :pre-radius pre-radius :last-hit-time 0
                :damaged false :jump? false :key nil})))
+
+(defn send-cats! []
+  (pmap #(->> (assoc-in (nth 1 %) [:type] "cat")
+              write-str
+              (ws/send! (nth 0 %))) 
+        (->> @cats (map vec) vec)))
