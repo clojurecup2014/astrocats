@@ -36,6 +36,4 @@
                         :compiler {:externs ["externs/astrocats_externs.js"]
                                    :pretty-print true
                                    :optimizations :whitespace
-                                   :output-to "resources/public/astrocats.js"
-                                   :source-map "resources/public/astrocats.js.map"
-                                   :output-dir "resources/public/release"}}}})
+                                   :output-to "resources/public/js/astrocats.js"}}}})
