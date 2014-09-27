@@ -86,7 +86,7 @@
                :damaged false :jump? false :key nil})))
 
 (defn send-cats! []
-  (pmap #(->> (assoc-in (nth 1 %) [:type] "cat")
+  (pmap #(->> (assoc-in (val  %) [:type] "cat")
               write-str
-              (ws/send! (nth 0 %))) 
-        (->> @cats (map vec) vec)))
+              (ws/send! (key %))) 
+        @cats))

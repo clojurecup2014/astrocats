@@ -48,7 +48,7 @@
 (def default-map (init-map))
 
 (comment
-(defn send-coins []
+(defn send-coins! []
   (pmap #(->> {:type "coins" :coins @coins} 
               write-str 
               (ws/send! %)) (->> @cats (map key) vec)))

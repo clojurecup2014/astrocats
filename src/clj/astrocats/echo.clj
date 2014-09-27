@@ -11,17 +11,22 @@
 (defn rand-img 
   [imgs]
   (let [new-img (rand-nth default-imgs)]
-    (if (imgs new-img)
-      (rand-img imgs)
+    (if (seq imgs)
+      (if (imgs new-img)
+        (rand-img imgs)
+        new-img)
       new-img)))
 
 (defn- on-connect [session]
   (let [imgs (if (seq @ac-cats/cats)
                (->> @ac-cats/cats (map :img) set))
         b (rand-nth ac-maps/blocks)
+        old-cat (get ac-cats/cats session)
         new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)  
                                   (+ (:radius b) 10) 0 0
-                                  (rand-img imgs))]
+                                  (rand-img imgs) ac-maps/default-map
+                                  (:x old-cat) (:y old-cat) (:raduis old-cat))]
+    (println new-cat)
     ;; send cat
     (->> (assoc-in new-cat  [:type] "cat")
          write-str
@@ -30,7 +35,7 @@
     (dosync 
       (alter ac-cats/cats assoc session new-cat))
     ;; send blocks 
-    (->> (assoc-in ac-maps/blocks [:type] "blocks")
+    (->> {:type "blocks" :blocks ac-maps/blocks}
          write-str
          (ws/send! session))
     ;; send game map
@@ -45,9 +50,11 @@
    (alter all-sessions disj session)))
 
 (defn- on-text [session message]
-  (let [dt (->> message read-str)]
+  (let [dt (-> message (read-str :key-fn keyword))]
     (case (:type dt)
-      :cat nil
+      "cat" (let [cat (get @ac-cats/cats session)]
+              (dosync
+                (alter ac-cats/cats assoc-in [:key] (-> dt :type keyword)))) 
       (doseq [s @all-sessions]
         (ws/send! s (str
                      (.. session getSession getRemoteAddress getHostName)

@@ -1,6 +1,6 @@
 (ns astrocats.handler
   (:require [astrocats.map :refer [coins blocks default-map]]
-            [astrocats.cats :refer [cats init-cat]]
+            [astrocats.cats :refer [cats init-cat send-cats!]]
             ;;[astrocats.gameutil :refer [collision]]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
@@ -12,6 +12,10 @@
   (future
     (while true
       (Thread/sleep 1000)
+      ;; update cats
+      (dosync
+        (alter cats #(pmap (fn [cat] (.update cat)) %)))
+      (send-cats!)
       (comment
         (let [res (collision @cats @blocks @coins)
               new-cats (nth 0 res)
