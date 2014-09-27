@@ -7,6 +7,7 @@
                  [compojure "1.1.9"]
                  [org.clojure/data.json "0.2.5"]
                  [hiccup "1.0.5"]
+                 [korma "0.3.0-RC5"]
                  [ring-jetty/ring-ws "0.1.0-SNAPSHOT"]
                  [prismatic/dommy "0.1.3"]
                  [org.clojure/clojurescript "0.0-2342"]]
