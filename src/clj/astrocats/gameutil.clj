@@ -52,22 +52,22 @@
                             )
                           false)
         new-acc-x (if is-hitfrom-side
-                    (* 0.2 (cat :acc_x))
-                    (cat :acc_x)
+                    (* 0.2 (cat :acc-x))
+                    (cat :acc-x)
                     )
         new-acc-y (if hitfrom-bottom
-                    (* (cat :acc_y) -0.3)
-                    (cat :acc_y)
+                    (* (cat :acc-y) -0.3)
+                    (cat :acc-y)
                     )
         new-cat (if hitfrom-top
-                    {:radius (hitfrom-top :radius) :acc_y 0 :on (hitfrom-top :on) :energy 5}
-                    {:radius (cat :radius) :acc_y new-acc-y :on (cat :on) :energy (cat :energy)}
+                    {:radius (hitfrom-top :radius) :acc-y 0 :on (hitfrom-top :on) :energy 5}
+                    {:radius (cat :radius) :acc-y new-acc-y :on (cat :on) :energy (cat :energy)}
                     )
         ]
     (-> cat
-        (assoc-in [:acc_x] new-acc-x)
+        (assoc-in [:acc-x] new-acc-x)
         (assoc-in [:radius] (new-cat :radius))
-        (assoc-in [:acc_y] (new-cat :acc_y))
+        (assoc-in [:acc-y] (new-cat :acc-y))
         (assoc-in [:on] (new-cat :on))
         (assoc-in [:energy] (new-cat :energy)))
     ))
@@ -146,9 +146,9 @@
                              (< (cat2 :radius) (+ (cat1 :radius) (cat1 :height)))
                              (> 0.5 difspeed -0.5))
                      [(-> cat1 
-                          (assoc-in [:acc_x] (* -1 (cat1 :acc_x))))
+                          (assoc-in [:acc-x] (* -1 (cat1 :acc-x))))
                       (-> cat2
-                          (assoc-in [:acc_x] (* -1 (cat2 :acc_x))))]
+                          (assoc-in [:acc-x] (* -1 (cat2 :acc-x))))]
                    (if
                        (and (> (+ (cat2 :radius) 
                                   (* (cat2 :height) 0.333)) 
@@ -158,13 +158,13 @@
                             (> difspeed 0)
                             (not (cat1 :damaged)))
                      [(-> cat1
-                          (assoc-in [:acc_y] (* -0.2 (cat2 :acc_y)))
+                          (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                           (assoc-in [:life] (- (cat2 :life) 1))
                           (assoc-in [:damaged] true)
                           (assoc-in [:lasthittime] 0)) ;;TODO
                       (-> cat2 
                           (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
-                          (assoc-in [:acc_y] -9)
+                          (assoc-in [:acc-y] -9)
                           (assoc-in [:score] (+ (cat1 :score) 50)))]
                      (if 
                          (and (> (+ (cat2 :radius) (cat2 :height)) (cat1 :radius))
@@ -173,10 +173,10 @@
                               (not (cat2 :damaged)))
                        [(-> cat1
                             (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
-                            (assoc-in [:acc_y] -9)
+                            (assoc-in [:acc-y] -9)
                             (assoc-in [:score] (+ (cat1 :score) 50)))
                         (-> cat2 
-                            (assoc-in [:acc_y] (* -0.2 (cat2 :acc_y)))
+                            (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                             (assoc-in [:life] (- (cat2 :life) 1))
                             (assoc-in [:damaged] true)
                             (assoc-in [:lasthittime] 0)) ;;TODO
