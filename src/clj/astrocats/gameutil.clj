@@ -33,7 +33,7 @@
                          (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
                            (if (and (> (closest-block :radius) (cat :radius))
                                 (< (- (closest-block :radius) (cat :radius)) (cat :radius))
-                                (< (- (cat :raduis) (cat :preradius)) 0))
+                                (< (- (cat :raduis) (cat :pre-radius)) 0))
                              {:id (closest-block :id) :radius (closest-block :radius)}
                              false
                              )
@@ -43,7 +43,7 @@
                             (let [closest-block (first same-rad-blocks)]
                               (and (< (- (closest-block :radius) (closest-block :height)) (+ (cat :radius) (cat :height)))
                                    (> (closest-block :radius) (+ (cat :radius) (cat :height)))
-                                (> (- (cat :raduis) (cat :preradius)) 0))                            
+                                (> (- (cat :raduis) (cat :pre-radius)) 0))                            
                               )
                             false)
         is-hitfrom-side (if (> (count same-height-blocks) 0)
@@ -135,7 +135,7 @@
   [cat1 cat2]
   (let [cat1-width-rad (get-width-rad cat1)
         cat2-width-rad (get-width-rad cat2)
-        difspeed (- (- (cat1 :radius) (cat2 :preradius)) (- (cat2 :radius) (cat2 :preradius)))
+        difspeed (- (- (cat1 :radius) (cat2 :pre-radius)) (- (cat2 :radius) (cat2 :pre-radius)))
         is-rad-col (and (< (- (cat2 :theta) (/ cat2-width-rad 2)) 
                            (+ (cat1 :theta) (/ cat1-width-rad 2)))
                         (> (+ (cat2 :theta) (/ cat2-width-rad 2)) 
