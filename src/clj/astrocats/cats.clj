@@ -27,11 +27,11 @@
         (update-in [:y] dec)
         (assoc-in [:jump?] true))))
   (left [this]
-    (case (:key this)
+    (case (:moving this)
       :left (update-in this [:acc-x] #(- % 0.2))
-      :right (assoc-in [:moving] :left)))
+      :right (assoc-in this [:moving] :left)))
   (right [this]
-    (case (:key this)
+    (case (:moving this)
       :right (update-in this [:acc-x] #(+ % 0.2))
       :left (assoc-in this [:moving] :right)))
   (-update-hit [this now-time]
@@ -78,7 +78,7 @@
                      (* (Math/sin radian) radius))
                :y (+ (. game-map -center-y)
                      (* (Math/sin radian) radius))
-               :pre-x pre-x :pre-y pre-y :moving nil
+               :pre-x pre-x :pre-y pre-y :moving :left
                :life 3 :on "" :width 32 :height 32
                :acc-x acc-x :acc-y acc-y :img img
                :hit 0 :coin 0 :energy 5 :charge-start 0

@@ -14,7 +14,10 @@
       (Thread/sleep 1000)
       ;; update cats
       (dosync
-        (alter cats #(pmap (fn [cat] (.update cat)) %)))
+        (alter cats 
+          (fn [cats] (zipmap (keys cats)
+                             (->> cats vals (map #(.update %)))))))
+      (println "cats2: " @cats)
       (send-cats!)
       (comment
         (let [res (collision @cats @blocks @coins)
