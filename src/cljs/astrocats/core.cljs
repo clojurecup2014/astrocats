@@ -31,7 +31,8 @@
     ;; set open websocket handler
     (socket/listen! @ws :open (fn [e] (print "connected!")))
     ;; set msg websocket handler
-    (socket/listen! @ws :msg (fn [e] (print "on message: " (. e -data))))
+    (socket/listen! @ws :msg (fn [e] (print "on message: " (. e -data))
+                                     (ac-view/call-event! (. e -data))))
     ;; start view
     (ac-view/bootstrap "game" l-listener r-listener z-listener))
 
