@@ -4,7 +4,6 @@
 
 (defrecord Coin [id radius theta exist])
 
-(def cats (ref {}))
 (def coins (ref #{}))
 
 (defn init-coin
@@ -46,14 +45,11 @@
 ;; game blocks
 (def blocks (->> default-blocks (map #(apply init-block %))))
 ;; game map
-(def default-map (ac-map/init-map))
+(def default-map (init-map))
 
-(defn send-cats!
-  (doall (pmap #(->> (assoc-in (val %) [:type] "cat")
-                     write-str
-                     (ws/send! (key %))) @cats)))
-
-(defn send-coins
-  (doall (pmap #(->> {:type "coins" :coins @coins} 
-                     write-str 
-                     (ws/send! %)) 
+(comment
+(defn send-coins []
+  (pmap #(->> {:type "coins" :coins @coins} 
+              write-str 
+              (ws/send! %)) (->> @cats (map key) vec)))
+  )

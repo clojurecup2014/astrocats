@@ -1,5 +1,5 @@
 (ns astrocats.echo
-  (:require [astrocats.map :as ac-map]
+  (:require [astrocats.map :as ac-maps]
             [astrocats.cats :as ac-cats]
             [ring-jetty.util.ws :as ws]
             [clojure.data.json :refer [write-str read-str]]))
@@ -10,15 +10,15 @@
 
 (defn rand-img 
   [imgs]
-  (let [new-img (ac-cats/init-cat (rand-nth default-imgs)
+  (let [new-img (ac-cats/init-cat (rand-nth default-imgs))]
     (if (imgs new-img)
       (rand-img imgs)
-      new-img))))
+      new-img)))
 
 (defn- on-connect [session]
-  (let [imgs (if (seq @ac-map/cats)
-               (->> @ac-map/cats (map :img) set))
-        b (rand-nth blocks)
+  (let [imgs (if (seq @ac-cats/cats)
+               (->> @ac-cats/cats (map :img) set))
+        b (rand-nth ac-maps/blocks)
         new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)  
                                   (+ (:radius b) 10) 0 0
                                   (rand-img imgs))]
@@ -28,13 +28,13 @@
          (ws/send! session))
     ;; add new-cat
     (dosync 
-      (alter ac-map/cats assoc session new-cat))
+      (alter ac-cats/cats assoc session new-cat))
     ;; send blocks 
-    (->> (assoc-in blocks [:type] "blocks")
+    (->> (assoc-in ac-maps/blocks [:type] "blocks")
          write-str
          (ws/send! session))
     ;; send game map
-    (->> (assoc-in default-map [:type] "map")
+    (->> (assoc-in ac-maps/default-map [:type] "map")
          write-str 
          (ws/send! session))
     (dosync
