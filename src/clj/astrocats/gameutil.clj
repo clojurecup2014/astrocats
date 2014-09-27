@@ -1,5 +1,9 @@
 (ns astrocats.gameutil)
 
+(defn- get-width-rad [cat]
+  (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
+  )
+
 (defn calc-block-collision
   [cat blocks]
   (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
@@ -75,11 +79,66 @@
 
 (defn calc-cats-collision
   [cats]
+  
+  
   )
 
-(defn calc--collision
+
+(defn calc-collision
   [cat1 cat2]
-  (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))]
+  (let [cat1-width-rad (get-width-rad cat1)
+        cat2-width-rad (get-width-rad cat2)
+        difspeed (- (- (cat1 :radius) (cat2 :preradius)) (- (cat2 :radius) (cat2 :preradius)))
+        is-rad-col (and (< (- (cat2 :theta) (/ cat2-width-rad 2)) 
+                           (+ (cat1 :theta) (/ cat1-width-rad 2)))
+                        (> (+ (cat2 :theta) (/ cat2-width-rad 2)) 
+                           (- (cat1 :theta) (/ cat1-width-rad 2))))
+                     
+        new-cats (if is-rad-col
+                   (if
+                       (and  (> (+ (cat2 :radius) (cat2 :height)) (cat1 :radius))
+                             (< (cat2 :radius) (+ (cat1 :radius) (cat1 :height)))
+                             (> 0.5 difspeed -0.5)
+                             )
+                     [(-> cat1 
+                          (assoc-in [:acc_x] (* -1 (cat1 :acc_x))))
+                      (-> cat2
+                          (assoc-in [:acc_x] (* -1 (cat2 :acc_x)))))]
+                   (if
+                       (and (> (+ (cat2 :radius) (* (cat2 :height) 0.333)) (+ (cat1 :radius) (cat1 :height)))
+                            (< (cat2 :radius) (+ (cat1 :radius) (cat1 :height)))
+                            (> difspeed 0)
+                            (not (cat1 :damaged)))
+                     [(-> cat1
+                          (assoc-in [:acc_y] (* -0.2 (cat2 :acc_y)))
+                          (assoc-in [:life] (- (cat2 :life) 1))
+                          (assoc-in [:damaged] true)
+                          (assoc-in [:lasthittime] 0)) ;;TODO
+                      (-> cat2 
+                          (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
+                          (assoc-in [:acc_y] -9)
+                          (assoc-in [:score] (+ (cat1 :score) 50)))
+                      ]
+                     (if 
+                         (and (> (+ (cat2 :radius) (cat2 :height)) (cat1 :radius))
+                              (< (+ (cat2 :radius) (* (cat2 :height) 0.666)) (cat1 :radius))
+                              (< difspeed 0)
+                              (not (cat2 :damaged)))
+                       [(-> cat1
+                            (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
+                            (assoc-in [:acc_y] -9)
+                            (assoc-in [:score] (+ (cat1 :score) 50)))
+                        (-> cat2 
+                            (assoc-in [:acc_y] (* -0.2 (cat2 :acc_y)))
+                            (assoc-in [:life] (- (cat2 :life) 1))
+                            (assoc-in [:damaged] true)
+                            (assoc-in [:lasthittime] 0)) ;;TODO
+                        ]
+                       [cat1 cat2]
+                       )
+                     [cat1 cat2])
+                   [cat1 cat2])
+        ]
+    new-cats
     )
   )
-
