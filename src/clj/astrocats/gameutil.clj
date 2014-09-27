@@ -77,7 +77,17 @@
          (assoc-in [:exist] (new-param :exist)))]
   ))
 
-(defn get-cllisioned-cats
+(defn get-collisioned-coins
+  [coin cats]
+  (loop [i 0
+         max (count cats)
+         c coin]
+    (if (< max i)
+      c
+      (recur (+ 1 i) max (second (calc-coin-collision (nth cats i) c)))
+  )))
+
+(defn get-collisioned-cats
   [cat coins]
   (loop [i 0
          max (count coins)
@@ -165,9 +175,9 @@
 
 (defn calc-collisions
   [cats blocks coins]
-  (let [cat-block (mapv (fn [c] (calc-block-collision c blocks)) cats)
-        result-cats (mapv (fn [c] (get-collisioned-cats c coins)) result-cats)
-        result-coins coins
+  (let [cat-blocks (mapv (fn [c] (calc-block-collision c blocks)) cats)
+        result-cats (mapv (fn [c] (get-collisioned-cats c coins)) cat-blocks)
+        result-coins (mapv (fn [c] (get-collisioned-coins coin cat-blocks)) coins)
         ]
     [(calc-cats-collisions result-cats)
      result-coins]))
