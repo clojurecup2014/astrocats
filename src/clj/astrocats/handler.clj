@@ -1,6 +1,7 @@
 (ns astrocats.handler
   (:require [astrocats.map :as ac-maps]
             [astrocats.cats :as ac-cats]
+            [astrocats.macros :refer [locksync]]
             ;;[astrocats.gameutil :refer [collision]]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
@@ -13,11 +14,10 @@
     (while true
       (Thread/sleep 1000)
       ;; update cats
-      (locking ac-cats/cats 
-        (sync
-          (alter ac-cats/cats 
-            (fn [x] (zipmap (-> x keys reverse)
-                            (->> x vals (map update)))))))
+      (locksync ac-cats/cats 
+        (alter ac-cats/cats 
+          (fn [x] (zipmap (-> x keys reverse)
+                          (->> x vals (map #(ac-cats/update % ac-maps/default-map)))))))
       (println "cat: " @ac-cats/cats)
       (ac-cats/send-cats!)
       (comment
