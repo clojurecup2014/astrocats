@@ -9,8 +9,7 @@
                  [hiccup "1.0.5"]
                  [korma "0.3.0-RC5"]
                  [ring-jetty/ring-ws "0.1.0-SNAPSHOT"]
-                 [prismatic/dommy "0.1.3"]
-                 [org.clojure/clojurescript "0.0-2342"]]
+                 ]
   :plugins [[lein-ring-jetty "0.1.0-SNAPSHOT"]
             [lein-cljsbuild "1.0.3"]]
   :source-paths ["src/clj"]
@@ -19,6 +18,7 @@
   :profiles
   {:dev {:dependencies [[javax.servlet/javax.servlet-api "3.1.0"]
                         [ring-mock "0.1.5"]
+                        [org.clojure/clojurescript "0.0-2342"]
                         [ac-view "0.1.0-SNAPSHOT"]]
          }}
   :cljsbuild {:builds ;;{:dev

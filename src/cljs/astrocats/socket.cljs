@@ -1,4 +1,4 @@
-(ns astrocats.sockets.core)
+(ns astrocats.socket)
 
 (defn socket
   "init Websocket object"
