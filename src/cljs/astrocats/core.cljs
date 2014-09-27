@@ -1,5 +1,6 @@
 (ns astrocats.core
   (:require [astrocats.sockets.core :as sockets]
+            [ac-view.core :as ac-view]
             [dommy.core :as dommy])
   (:use-macros [dommy.macros :only [node sel sel1]]))
 
@@ -23,7 +24,10 @@
     ;; set button handler
     (dommy/listen! (sel1 :#send-button)
                    :click (fn [e]
-                            (->> (sel1 :#send-text) dommy/value (sockets/send! ws))))))
+                            (->> (sel1 :#send-text) dommy/value (sockets/send! ws))))
+    ;; start view
+    (ac-view/bootstrap)
+    ))
 
 (set! *print-fn* #(.log js/console (apply str %&)))
 (set! (.-onload js/window) -main)

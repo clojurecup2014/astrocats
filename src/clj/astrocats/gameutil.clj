@@ -2,7 +2,7 @@
 
 (defn calc-block-collision
   [cat blocks]
-  (let [now-width-rad (* 180 (/ (cat :width) (* (Math/PI (cat :radius)))))
+  (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
         same-rad-blocks (for [b blocks :when  (if (and (< (b :start) (+ (cat :theta) (/ now-width-rad 2)))
                                                        (> (b :end) (- (cat :theta) (/ now-width-rad 2))))
                                                 b)] b)
@@ -55,13 +55,27 @@
 
 
 (defn calc-coin-collision
-  [cat coins]
-  (let [now-width-rad (* 180 (/ (cat :width) (* (Math/PI (cat :radius)))))
-        ])
-  )
+  [cat coin]
+  (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
+        new-param (if (coin :exist)
+                   (if (and (> (coin :theta) (- (cat :theta) (/ now-width-rad 2)))
+                            (< (coin :theta) (+ (cat :theta) (/ now-width-rad 2)))
+                            (> (coin :radius) (cat :radius))
+                            (< (coin :radius) (+ (cat :radius) (cat :height))))
+                     {:score (+ (cat :score) 10) :exist false}
+                     {:score (cat :score) :exist (coin :exist)})
+                   {:score (cat :score) :exist (coin :exist)}
+                   )]
+    [
+     (-> cat
+         (assoc-in [:score] (new-param :score)))
+     (-> coin
+         (assoc-in [:exist] (new-param :exist)))]
+  ))
 
 (defn calc-cats-collision
   [cat1 cat2]
-  (cat1 cat2)
+  (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))]
+    )
   )
 
