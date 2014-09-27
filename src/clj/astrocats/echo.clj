@@ -1,5 +1,6 @@
 (ns astrocats.echo
-  (:require [ring-jetty.util.ws :as ws]))
+  (:require [ring-jetty.util.ws :as ws]
+            [clojure.data.json :as json]))
 
 (def all-sessions (ref #{}))
 

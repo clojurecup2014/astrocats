@@ -5,8 +5,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [compojure "1.1.9"]
+                 [org.clojure/data.json "0.2.5"]
                  [hiccup "1.0.5"]
                  [ring-jetty/ring-ws "0.1.0-SNAPSHOT"]
+                 [prismatic/dommy "0.1.3"]
                  [org.clojure/clojurescript "0.0-2342"]]
   :plugins [[lein-ring-jetty "0.1.0-SNAPSHOT"]
             [lein-cljsbuild "1.0.3"]]
