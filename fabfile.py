@@ -37,7 +37,7 @@ def _clean(path):
 def deploy():
     _check()
 
-    run(":")
+    sudo(":")
 
     local("rm -f resources/public/public.tar.gz")
 
@@ -62,3 +62,7 @@ def deploy():
 
     sudo("service jetty restart")
     sudo("service nginx restart")
+
+    local("rm -f resources/public/public.tar.gz")
+
+

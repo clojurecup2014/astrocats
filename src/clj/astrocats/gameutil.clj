@@ -2,7 +2,7 @@
 
 (defn calc-block-collision
   [cat blocks map]
-  (let same-rad-blocks ))
+  (let same-rad-blocks (for [w tst :when  (if (> (w :x) 10) w)] w)))
 
 (defrecord Coin [id radius theta exist])
 
