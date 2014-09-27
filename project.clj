@@ -18,7 +18,9 @@
          :websockets {"/echo" astrocats.echo/handler}}
   :profiles
   {:dev {:dependencies [[javax.servlet/javax.servlet-api "3.1.0"]
-                        [ring-mock "0.1.5"]]}}
+                        [ring-mock "0.1.5"]
+                        [ac-view "0.1.0-SNAPSHOT"]]
+         }}
   :cljsbuild {:builds ;;{:dev
                       ;; {:id "dev"
                       ;;  :source-paths ["src/cljs"]
