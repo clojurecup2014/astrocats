@@ -4,7 +4,8 @@ A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
-FIXME
+   lein cljsbuild auto release
+   lein ring-jetty server
 
 ## License
 
