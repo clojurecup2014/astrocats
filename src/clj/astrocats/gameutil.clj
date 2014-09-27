@@ -1,20 +1,36 @@
-(ns astrocats.gameutil)
+(ns astrocats.gameutil
+  [astrocats.util :refer [now]])
 
 (defn- get-width-rad [cat]
   (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
   )
 
+
+(defn- get-closest-block-with-r [cat blocks]
+  (let [sorted (sort #(compare (Math/abs (- (cat :radius) (%1 :radius)))
+                               (Math/abs (- (cat :radius) (%2 :radius)))) blocks)]
+    (first sorted)
+    ))
+
+
+(defn- get-closest-block-with-theta [cat blocks]
+  (let [sorted (sort #(compare (Math/abs (- (cat :theta) (* (+ (%1 :start) (%1 :end)) 0.5)))
+                               (Math/abs (- (cat :theta) (* (+ (%2 :start) (%2 :end)) 0.5)))) blocks)]
+    (first sorted)
+    ))
+
+
 (defn calc-block-collision
   [cat blocks]
   (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
-        same-rad-blocks (for [b blocks :when  (if (and (< (b :start) (+ (cat :theta) (/ now-width-rad 2)))
-                                                       (> (b :end) (- (cat :theta) (/ now-width-rad 2))))
+        same-rad-blocks (for [b blocks :when  (if (and (< (b :start) (+ (cat :theta) (* now-width-rad 0.5)))
+                                                       (> (b :end) (- (cat :theta) (* now-width-rad 0.5))))
                                                 b)] b)
         same-height-blocks (for [b blocks :when  (if (and (< (b :radius) (+ (cat :radius) (* 0.75 (cat :height))))
                                                        (> (b :radius) (+ (cat :radius) (* 0.25 (cat :height)))))
                                                 b)] b)
         hitfrom-top (if (> (count same-rad-blocks) 0)
-                         (let [closest-block (first same-rad-blocks)]
+                         (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
                            (if (and (> (closest-block :radius) (cat :radius))
                                 (< (- (closest-block :radius) (cat :radius)) (cat :radius))
                                 (< (- (cat :raduis) (cat :preradius)) 0))
@@ -37,22 +53,22 @@
                             )
                           false)
         new-acc-x (if is-hitfrom-side
-                    (* 0.2 (cat :acc_x))
-                    (cat :acc_x)
+                    (* 0.2 (cat :acc-x))
+                    (cat :acc-x)
                     )
         new-acc-y (if hitfrom-bottom
-                    (* (cat :acc_y) -0.3)
-                    (cat :acc_y)
+                    (* (cat :acc-y) -0.3)
+                    (cat :acc-y)
                     )
         new-cat (if hitfrom-top
-                    {:radius (hitfrom-top :radius) :acc_y 0 :on (hitfrom-top :on) :energy 5}
-                    {:radius (cat :radius) :acc_y new-acc-y :on (cat :on) :energy (cat :energy)}
+                    {:radius (hitfrom-top :radius) :acc-y 0 :on (hitfrom-top :on) :energy 5}
+                    {:radius (cat :radius) :acc-y new-acc-y :on (cat :on) :energy (cat :energy)}
                     )
         ]
     (-> cat
-        (assoc-in [:acc_x] new-acc-x)
+        (assoc-in [:acc-x] new-acc-x)
         (assoc-in [:radius] (new-cat :radius))
-        (assoc-in [:acc_y] (new-cat :acc_y))
+        (assoc-in [:acc-y] (new-cat :acc-y))
         (assoc-in [:on] (new-cat :on))
         (assoc-in [:energy] (new-cat :energy)))
     ))
@@ -131,9 +147,9 @@
                              (< (cat2 :radius) (+ (cat1 :radius) (cat1 :height)))
                              (> 0.5 difspeed -0.5))
                      [(-> cat1 
-                          (assoc-in [:acc_x] (* -1 (cat1 :acc_x))))
+                          (assoc-in [:acc-x] (* -1 (cat1 :acc-x))))
                       (-> cat2
-                          (assoc-in [:acc_x] (* -1 (cat2 :acc_x))))]
+                          (assoc-in [:acc-x] (* -1 (cat2 :acc-x))))]
                    (if
                        (and (> (+ (cat2 :radius) 
                                   (* (cat2 :height) 0.333)) 
@@ -143,13 +159,13 @@
                             (> difspeed 0)
                             (not (cat1 :damaged)))
                      [(-> cat1
-                          (assoc-in [:acc_y] (* -0.2 (cat2 :acc_y)))
+                          (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                           (assoc-in [:life] (- (cat2 :life) 1))
                           (assoc-in [:damaged] true)
-                          (assoc-in [:lasthittime] 0)) ;;TODO
+                          (assoc-in [:lasthittime] (now))) 
                       (-> cat2 
                           (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
-                          (assoc-in [:acc_y] -9)
+                          (assoc-in [:acc-y] -9)
                           (assoc-in [:score] (+ (cat1 :score) 50)))]
                      (if 
                          (and (> (+ (cat2 :radius) (cat2 :height)) (cat1 :radius))
@@ -158,13 +174,13 @@
                               (not (cat2 :damaged)))
                        [(-> cat1
                             (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
-                            (assoc-in [:acc_y] -9)
+                            (assoc-in [:acc-y] -9)
                             (assoc-in [:score] (+ (cat1 :score) 50)))
                         (-> cat2 
-                            (assoc-in [:acc_y] (* -0.2 (cat2 :acc_y)))
+                            (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                             (assoc-in [:life] (- (cat2 :life) 1))
                             (assoc-in [:damaged] true)
-                            (assoc-in [:lasthittime] 0)) ;;TODO
+                            (assoc-in [:lasthittime] (now))) 
                         ]
                        [cat1 cat2])))
                    [cat1 cat2])
