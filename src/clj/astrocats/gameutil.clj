@@ -2,7 +2,9 @@
 
 (defn calc-block-collision
   [cat blocks map]
-  (let same-rad-blocks (for [w tst :when  (if (> (w :x) 10) w)] w)))
+  (let [now-width-rad (* 180 (/ (cat :width) (* (Math/PI (cat :radius)))))
+        same-rad-blocks (for [b blocks :when  (if (> (b :x) 10) b)] b)]
+    ))
 
 (defrecord Coin [id radius theta exist])
 
