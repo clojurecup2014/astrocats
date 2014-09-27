@@ -74,6 +74,10 @@
   ))
 
 (defn calc-cats-collision
+  [cats]
+  )
+
+(defn calc--collision
   [cat1 cat2]
   (let [now-width-rad (* 180 (/ (cat :width) (* Math/PI (cat :radius))))]
     )
