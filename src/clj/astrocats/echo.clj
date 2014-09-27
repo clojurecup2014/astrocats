@@ -52,9 +52,11 @@
 (defn- on-text [session message]
   (let [dt (-> message (read-str :key-fn keyword))]
     (case (:type dt)
-      "cat" (let [cat (get @ac-cats/cats session)]
-              (dosync
-                (alter ac-cats/cats assoc-in [:key] (-> dt :type keyword)))) 
+      "cat" (dosync
+              (alter ac-cats/cats #(case (:key dt)
+                                    "left" (update-in % [session] ac-cats/left)
+                                    "right" (update-in % [session] ac-cats/right)
+                                    "jump" (update-in % [session] ac-cats/jump))))
       (doseq [s @all-sessions]
         (ws/send! s (str
                      (.. session getSession getRemoteAddress getHostName)
