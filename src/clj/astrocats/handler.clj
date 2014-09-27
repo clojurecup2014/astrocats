@@ -7,8 +7,7 @@
 
 (defn- page []
   (html5 [:head [:title "astrocats"] 
-          ;;(include-js "example.js")
-          (include-js "astrocats.js")]
+          (include-js "/js/astrocats.js")]
          [:body
           [:div#form
            [:input#send-text {:type "text"}]
