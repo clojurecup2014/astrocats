@@ -46,7 +46,9 @@
 
 (defn- on-close [session code reason]
   (dosync
-   (alter all-sessions disj session)))
+   (alter all-sessions disj session))
+  (dosync
+   (alter ac-cats/cats dissoc session)))
 
 (defn- on-text [session message]
   (let [dt (-> message (read-str :key-fn keyword))]
@@ -68,7 +70,9 @@
 (defn- on-error [session e]
   (.printStackTrace e)
   (dosync
-   (alter all-sessions disj session)))
+   (alter all-sessions disj session))
+  (dosync
+   (alter ac-cats/cats dissoc session)))
 
 (def handler
   {:on-connect on-connect
