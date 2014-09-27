@@ -22,12 +22,11 @@
 
 (defn- page []
   (html5 [:head [:title "astrocats"] 
+          (include-js "/js/phaser.min.js")
           (include-js "/js/astrocats.js")]
          [:body
-          [:div#form
-           [:input#send-text {:type "text"}]
-           [:input#send-button {:type "button" :value "Send"}]]
-          [:div#message]]))
+          [:div#game]
+          ]))
 
 (defroutes app-routes
   (GET "/" [] (page))
