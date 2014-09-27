@@ -1,4 +1,5 @@
-(ns astrocats.gameutil)
+(ns astrocats.gameutil
+  [astrocats.util :refer [now]])
 
 (defn- get-width-rad [cat]
   (* 180 (/ (cat :width) (* Math/PI (cat :radius))))
@@ -161,7 +162,7 @@
                           (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                           (assoc-in [:life] (- (cat2 :life) 1))
                           (assoc-in [:damaged] true)
-                          (assoc-in [:lasthittime] 0)) ;;TODO
+                          (assoc-in [:lasthittime] (now))) 
                       (-> cat2 
                           (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
                           (assoc-in [:acc-y] -9)
@@ -179,7 +180,7 @@
                             (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                             (assoc-in [:life] (- (cat2 :life) 1))
                             (assoc-in [:damaged] true)
-                            (assoc-in [:lasthittime] 0)) ;;TODO
+                            (assoc-in [:lasthittime] (now))) 
                         ]
                        [cat1 cat2])))
                    [cat1 cat2])
