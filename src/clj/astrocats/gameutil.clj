@@ -77,10 +77,41 @@
          (assoc-in [:exist] (new-param :exist)))]
   ))
 
-(defn calc-cats-collision
+(defn get-collisioned-coins
+  [coin cats]
+  (loop [i 0
+         max (count cats)
+         c coin]
+    (if (< max i)
+      c
+      (recur (+ 1 i) max (second (calc-coin-collision (nth cats i) c)))
+  )))
+
+(defn get-collisioned-cats
+  [cat coins]
+  (loop [i 0
+         max (count coins)
+         c cat]
+    (if (< max i)
+      c
+      (recur (+ 1 i) max (first (calc-coin-collision c (nth coins i))))
+  )))
+
+(defn calc-cats-collisions
   [cats]
-  
-  
+  (mapv
+   (fn [c]
+     (let [targets (filter #(not= % c) cats)]
+       (loop [rtargets targets]
+         (if (empty? rtargets)
+           c
+           (let [t (first targets)
+                 [nc nt] (calc-collision c t)]
+             (if (not= c nc) 
+               nc                      ;; when collision
+               (recur (rest rtargets)) ;; when NOT collision
+               ))))))
+   cats)
   )
 
 
@@ -98,14 +129,16 @@
                    (if
                        (and  (> (+ (cat2 :radius) (cat2 :height)) (cat1 :radius))
                              (< (cat2 :radius) (+ (cat1 :radius) (cat1 :height)))
-                             (> 0.5 difspeed -0.5)
-                             )
+                             (> 0.5 difspeed -0.5))
                      [(-> cat1 
                           (assoc-in [:acc_x] (* -1 (cat1 :acc_x))))
                       (-> cat2
-                          (assoc-in [:acc_x] (* -1 (cat2 :acc_x)))))]
+                          (assoc-in [:acc_x] (* -1 (cat2 :acc_x))))]
                    (if
-                       (and (> (+ (cat2 :radius) (* (cat2 :height) 0.333)) (+ (cat1 :radius) (cat1 :height)))
+                       (and (> (+ (cat2 :radius) 
+                                  (* (cat2 :height) 0.333)) 
+                               (+ (cat1 :radius) 
+                                  (cat1 :height)))
                             (< (cat2 :radius) (+ (cat1 :radius) (cat1 :height)))
                             (> difspeed 0)
                             (not (cat1 :damaged)))
@@ -117,8 +150,7 @@
                       (-> cat2 
                           (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
                           (assoc-in [:acc_y] -9)
-                          (assoc-in [:score] (+ (cat1 :score) 50)))
-                      ]
+                          (assoc-in [:score] (+ (cat1 :score) 50)))]
                      (if 
                          (and (> (+ (cat2 :radius) (cat2 :height)) (cat1 :radius))
                               (< (+ (cat2 :radius) (* (cat2 :height) 0.666)) (cat1 :radius))
@@ -134,11 +166,18 @@
                             (assoc-in [:damaged] true)
                             (assoc-in [:lasthittime] 0)) ;;TODO
                         ]
-                       [cat1 cat2]
-                       )
-                     [cat1 cat2])
+                       [cat1 cat2])))
                    [cat1 cat2])
         ]
     new-cats
     )
   )
+
+(defn calc-collisions
+  [cats blocks coins]
+  (let [cat-blocks (mapv (fn [c] (calc-block-collision c blocks)) cats)
+        result-cats (mapv (fn [c] (get-collisioned-cats c coins)) cat-blocks)
+        result-coins (mapv (fn [c] (get-collisioned-coins coin cat-blocks)) coins)
+        ]
+    [(calc-cats-collisions result-cats)
+     result-coins]))
