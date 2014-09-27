@@ -1,9 +1,12 @@
 (ns astrocats.gameutil)
 
-(defn calc-block-collision
+(defn calc-block-collision-pos
   [cat blocks map]
   (let [now-width-rad (* 180 (/ (cat :width) (* (Math/PI (cat :radius)))))
-        same-rad-blocks (for [b blocks :when  (if (> (b :x) 10) b)] b)]
+        same-rad-blocks (for [b blocks :when  (if (and (< (b :start) (+ (cat :theta) (/ now-width-rad 2)))
+                                                       (> (b :end) (- (cat :theta) (/ now-width-rad 2))))
+                                                b)] b)
+        is-hitfrom-top ]
     ))
 
 (defrecord Coin [id radius theta exist])
@@ -25,9 +28,3 @@
                 center-x center-y blocks])
 
 (defn init-map
-  ([blocks]
-    (init-map 800 600 80 blocks))
-  ([width height ground blocks]
-    (map->Map {:width width :height height :ground-y ground 
-               :center-x (/ width 2) :center-y 450
-               :blocks blocks})))
