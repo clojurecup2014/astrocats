@@ -26,7 +26,6 @@
                                   (+ (:radius b) 10) 0 0
                                   (rand-img imgs) ac-maps/default-map
                                   (:x old-cat) (:y old-cat) (:raduis old-cat))]
-    (println new-cat)
     ;; send cat
     (->> (assoc-in new-cat  [:type] "cat")
          write-str

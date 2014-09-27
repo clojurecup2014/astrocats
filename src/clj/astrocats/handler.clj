@@ -1,6 +1,6 @@
 (ns astrocats.handler
-  (:require [astrocats.map :refer [coins blocks default-map]]
-            [astrocats.cats :refer [cats init-cat send-cats!]]
+  (:require [astrocats.map :as ac-maps]
+            [astrocats.cats :as ac-cats]
             ;;[astrocats.gameutil :refer [collision]]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
@@ -13,22 +13,21 @@
     (while true
       (Thread/sleep 1000)
       ;; update cats
-      (dosync
-        (alter cats 
-          (fn [cats] (zipmap (keys cats)
-                             (->> cats vals (map #(.update %)))))))
-      (println "cats2: " @cats)
-      (send-cats!)
+      (locking ac-cats/cats 
+        (sync
+          (alter ac-cats/cats 
+            (fn [x] (zipmap (-> x keys reverse)
+                            (->> x vals (map update)))))))
+      (println "cat: " @ac-cats/cats)
+      (ac-cats/send-cats!)
       (comment
-        (let [res (collision @cats @blocks @coins)
+        (let [res (collision @ac-cats/cats @ac-maps/blocks @ac-maps/coins)
               new-cats (nth 0 res)
-              new-blocks (nth 1 res)
-              new-coins (nth 2 res)]
+              new-coins (nth 1 res)]
           ;; update vars
           (dosync 
-            (alter cats #(new-cat))
-            (alter blocks #(new-blocks))
-            (alter coins #(new-coins))))))))
+            (alter ac-cats/cats #(new-cat))
+            (alter ac-maps/coins #(new-coins))))))))
 
 (defn- page []
   (html5 [:head [:title "astrocats"] 
