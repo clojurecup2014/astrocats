@@ -12,7 +12,6 @@
   (update [this game-map])
   (-update-hit [this now-time])
   (-update-energy [this now-time])
-  (-update-acc [this])
   (-update-acc-zero [this])
   (pack [this]))
 
@@ -33,12 +32,12 @@
       this))
   (left [this]
     (case (:moving this)
-      :left (update-in this [:acc-x] #(- % 0.2))
+      :left (update-in this [:acc-x] #(- % 1.5))
       :right (assoc-in this [:moving] :left)
       this))
   (right [this]
     (case (:moving this)
-      :right (update-in this [:acc-x] #(+ % 0.2))
+      :right (update-in this [:acc-x] #(+ % 1.5))
       :left (assoc-in this [:moving] :right)
       this))
   (-update-hit [this now-time]
@@ -52,11 +51,6 @@
       (-> this
           (assoc-in [:charge-start] now-time)
           (update-in [:energy] inc))
-      this))
-  (-update-acc [this]
-    (case (:moving this)
-      :left (update-in this [:acc-x] #(- % 0.35))
-      :right (update-in this [:acc-x] #(+ % 0.35))
       this))
   (-update-acc-zero [this]
     (if (< (-> this :acc-x Math/abs) 0.35)
@@ -77,8 +71,7 @@
                               (/ (* 180 (Math/atan2 (- (:x this) (:center-x game-map))
                                                     (- (:center-y game-map) (:y this))))
                                  Math/PI)))
-          (update-in [:acc-x] #(* % 0.9))
-          -update-acc
+          (update-in [:acc-x] #(* % 0.5))
           -update-acc-zero)))
   (pack [this]
     {:id (:id this)
