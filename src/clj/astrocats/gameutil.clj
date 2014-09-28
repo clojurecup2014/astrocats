@@ -44,7 +44,7 @@
                                  (< (:radius closest-cat) (:radius c))
                              (neg? (- (- (:radius c) (:pre-radius c)) (- (:radius closest-cat) (:pre-radius closest-cat)))
                                    ))
-                          {:id (:id closest-cat) :radius (:radius closest-cat)}
+                          {:id (:id closest-cat) :damaged (:damaged closest-cat)}
                           false))
                       false)
         hitfrom-bottom (if ((complement empty?) same-rad-cats)
@@ -56,13 +56,14 @@
                          false)
         ;; test (println (count same-rad-cats) hitfrom-top " " hitfrom-bottom)
         ]
-    (if hitfrom-top
+    (if (and hitfrom-top (not (:damaged hitfrom-top)))
       (-> c
           (assoc-in [:acc-y] -9)
           (assoc-in [:score] (+ (:score c) 50)))
-      (if hitfrom-bottom
+      (if (and hitfrom-bottom (not (:damaged c)))
         (-> c
             (assoc-in [:acc-y] (* -0.2 (:acc-y c)))
+            (assoc-in [:radius] (- (:radius c) 5))
             (assoc-in [:life] (- (:life c) 1))
             (assoc-in [:damaged] true)
             (assoc-in [:last-hit-time] (now)))
