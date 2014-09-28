@@ -209,9 +209,12 @@
         new-param2 (if (> (:ground-y maps) (:radius new-param))
                      (-> new-param
                          (assoc-in [:acc-y] 0)
-                         (assoc-in [:life] 0)
+                         (assoc-in [:life] 1)
                          (assoc-in [:on] "ground"))
-                     new-param)
+                     (-> new-param
+                         (assoc-in [:life] (:life cat))
+                         (assoc-in [:on] (:on cat))
+                         ))
         tmp-x (+ (:x cat) (:rad-x new-param2) theta-x)
         tmp-y (+ (:y cat) (:rad-y new-param2) theta-y)
         tmp-r (Math/sqrt (+ (Math/pow (- tmp-x (:center-x maps)) 2)
@@ -219,6 +222,7 @@
     (-> cat
         (assoc-in [:radius] (:radius new-param2))
         (assoc-in [:acc-y] (:acc-y new-param2))
+        (assoc-in [:life] (:life new-param2))
         (assoc-in [:on] (:on new-param2))
         (assoc-in [:x] (+ (/ (* (:radius new-param2)
                               (- tmp-x (:center-x maps)))
