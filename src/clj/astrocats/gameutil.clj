@@ -1,5 +1,6 @@
 (ns astrocats.gameutil
-  (:require [astrocats.util :refer [now]]))
+  (:require [astrocats.util :refer [now]]
+            [ring-jetty.util.ws :as ws]))
 
 (defn- get-width-rad [cat]
   (* 180 (/ (:width cat) (* Math/PI (:radius cat))))
@@ -54,7 +55,8 @@
                                 (pos? (- (- (:radius c) (:pre-radius c)) (- (:radius closest-cat) (:pre-radius closest-cat)))
                                       )))
                          false)
-        test (println (count same-rad-cats) hitfrom-top " " hitfrom-bottom)]
+        ;; test (println (count same-rad-cats) hitfrom-top " " hitfrom-bottom)
+        ]
     (if hitfrom-top
       (-> c
           (assoc-in [:acc-y] -9)
@@ -232,6 +234,12 @@
        result-cats (->> cat-blocks
                         (mapv #(get-collisioned-cats % coins))
                         calc-cats-collisions)
-       result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)]
-    [(zipmap (keys cats) result-cats)
+       result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)
+       lost-cats (filter (fn [[s c]] (>= 0 (:life c)))
+                         (zipmap (keys cats) result-cats))]
+   (doseq [[s _] lost-cats]
+     (ws/close! s))
+   [(apply hash-map (flatten
+                     (filter (fn [[s c]] (pos? (:life c)))
+                             (zipmap (keys cats) result-cats))))
      result-coins]))

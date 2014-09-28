@@ -73,7 +73,10 @@
   nil)
 
 (defn- on-error [session e]
-  (println (->> (get @ac-cats/cats) :img " has unexceptedly closed."))
+  (println (->> session
+                (get @ac-cats/cats)
+                :id)
+           " has unexceptedly closed.")
   (dosync
    (alter all-sessions disj session))
   (dosync
