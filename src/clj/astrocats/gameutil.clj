@@ -42,7 +42,7 @@
                               )
                             false)
         is-hitfrom-side (if (> (count same-height-blocks) 0)
-                          (let [closest-block (get-closest-block-with-theta same-height-blocks)]
+                          (let [closest-block (get-closest-block-with-theta cat same-height-blocks)]
                             (and (< (:start closest-block) (+ (:theta cat) (/ 2.0 now-width-rad)))
                                  (> (:end closest-block) (- (:theta cat) (/ 2.0 now-width-rad)))))
                           false)
