@@ -2,6 +2,10 @@
   (:require [astrocats.socket :as socket]
             [ac-view.core :as ac-view]))
 
+(defn now
+  []
+  (.getTime (new js/Date)))
+
 (def game-map (atom nil))
 (def ws (atom nil))
 
@@ -15,10 +19,20 @@
   (socket/send! @ws {:type "cat"
                      :key "right"}))
 
+(def z-state (atom :release))
+(def last-z (atom (now)))
+
 (defn z-listener
   []
-  (socket/send! @ws {:type "cat"
-                     :key "jump"}))
+  (when (= @z-state :release)
+      (socket/send! @ws {:type "cat"
+                         :key "jump"})
+      (reset! z-state :pressed))
+  (reset! last-z (now))
+  (js/setTimeout (fn []
+                   (when (<= (+ @last-z 20) (now))
+                     (reset! z-state :release)))
+                 30))
 
 (defn ^:export main []
     (reset! ws (socket/socket
