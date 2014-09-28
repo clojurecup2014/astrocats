@@ -61,7 +61,7 @@
       )))
 
 (defn- page []
-  (html5 [:head [:title "astrocats"]
+  (html5 [:head [:title "AstroCats"]
           (include-css "/css/default.css")
           (include-js "/js/phaser.min.js")
           (include-js "/js/astrocats.js")]
