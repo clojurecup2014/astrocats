@@ -62,6 +62,7 @@
 
 (defn- page []
   (html5 [:head [:title "astrocats"]
+          (include-css "/css/default.css")
           (include-js "/js/phaser.min.js")
           (include-js "/js/astrocats.js")]
          [:body

@@ -34,14 +34,18 @@
                      (reset! z-state :release)))
                  30))
 
-(defn ^:export main []
+(defn listen-start! []
     (reset! ws (socket/socket
                  (str (socket/get-host-url) "echo/")))
     ;; set open websocket handler
     (socket/listen! @ws :open (fn [e]))
     ;; set msg websocket handler
     (socket/listen! @ws :msg (fn [e] (ac-view/call-event! (. e -data))))
+    ;; set error websocket handler
+    (socket/listen! @ws :error (fn [e] (js/alert (. e -data)))))
+
+(defn ^:export main []
     ;; start view
-    (ac-view/bootstrap "game" l-listener r-listener z-listener))
+    (ac-view/bootstrap "game" l-listener r-listener z-listener listen-start!))
 
 (set! (.-onload js/window) main)

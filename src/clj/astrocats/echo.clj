@@ -20,23 +20,17 @@
       new-img)))
 
 (defn- on-connect [session]
-  (if (<= (count @all-sessions) max-session)
+  (if (< (-> @ac-cats/cats vals count) max-session)
     (let [imgs (if (seq @ac-cats/cats)
                  (->> @ac-cats/cats vals (map :img) set))
           b (rand-nth ac-maps/blocks)
-          theta (+ (:start b) (:end b))
-          radius (+ (:radius b) 20)
-          radian (/ (* Math/PI theta) 180.0)
-          old-x (double (+ (. ac-maps/default-map -center-x)
-              (* (Math/sin radian) radius)))
-          old-y (double (+ (. ac-maps/default-map -center-y)
-              (* (Math/cos radian) radius)))
+          theta (/ (+ (:start b) (:end b)) 2)
+          radius (+ (:radius b) 26)
           new-cat (ac-cats/init-cat theta
                                     radius
                                     0 0
                                     (rand-img imgs)
-                                    ac-maps/default-map
-                                    old-x old-y radius)]
+                                    ac-maps/default-map)]
       ;; send cat
       (ws/send! session
                 (-> new-cat
@@ -57,8 +51,7 @@
       (dosync
         (alter all-sessions conj session)))
     ;; full of max sessions
-    (do 
-      (ws/send! session "full!!")
+    (do
       (ws/close! session))))
 
 (defn- on-close [session code reason]
@@ -80,7 +73,7 @@
   nil)
 
 (defn- on-error [session e]
-  (.printStackTrace e)
+  (println (->> (get @ac-cats/cats) :img " has unexceptedly closed."))
   (dosync
    (alter all-sessions disj session))
   (dosync
