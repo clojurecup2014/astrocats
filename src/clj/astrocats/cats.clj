@@ -13,6 +13,7 @@
   (-update-hit [this now-time])
   (-update-energy [this now-time])
   (-update-acc-zero [this])
+  (-update-jump-flg [this now-time])
   (pack [this]))
 
 (defrecord Cat [id theta radius x y pre-x pre-y
@@ -21,10 +22,9 @@
                 pre-radius last-hit-time damaged? jump? score]
   ICat
   (jump [this]
-    (if (> (:energy this) 0)
+    (if (and (> (:energy this) 0) (> (- (now) (:charge-start this)) 200))
       (-> this
         (assoc-in [:acc-y] -10)
-        (update-in [:y] dec)
         (assoc-in [:on] "")
         (update-in [:energy] dec)
         (assoc-in [:charge-start] (now))
@@ -56,6 +56,10 @@
     (if (< (-> this :acc-x Math/abs) 0.35)
       (assoc-in this [:acc-x] 0)
       this))
+  (-update-jump-flg [this now-time]
+    (if (> (- now-time (:charge-start this)) 150)
+      (-> this (assoc-in [:jump?] false))
+      this))
   (update [this game-map]
     (let [now-time (now)]
       (-> this
@@ -72,6 +76,7 @@
                                                     (- (:center-y game-map) (:y this))))
                                  Math/PI)))
           (update-in [:acc-x] #(* % 0.5))
+          (-update-jump-flg now-time)
           -update-acc-zero)))
   (pack [this]
     {:id (:id this)
