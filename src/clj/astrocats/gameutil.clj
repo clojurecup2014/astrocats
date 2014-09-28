@@ -43,7 +43,7 @@
                             false)
         is-hitfrom-side (if (> (count same-height-blocks) 0)
                           (let [closest-block (first same-height-blocks)]
-                            (and (< (:start closest-block) (+ (:theta cat) (/ (2.0 now-width-rad))))
+                            (and (< (:start closest-block) (+ (:theta cat) (/ 2.0 now-width-rad)))
                                  (> (:end closest-block) (- (:theta cat) (/ 2.0 now-width-rad)))))
                           false)
         new-acc-x (if is-hitfrom-side
