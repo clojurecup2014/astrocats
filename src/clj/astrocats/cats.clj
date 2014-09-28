@@ -32,12 +32,12 @@
       this))
   (left [this]
     (case (:moving this)
-      :left (update-in this [:acc-x] #(- % 1.5))
+      :left (update-in this [:acc-x] #(- % 2.6))
       :right (assoc-in this [:moving] :left)
       this))
   (right [this]
     (case (:moving this)
-      :right (update-in this [:acc-x] #(+ % 1.5))
+      :right (update-in this [:acc-x] #(+ % 2.6))
       :left (assoc-in this [:moving] :right)
       this))
   (-update-hit [this now-time]
