@@ -63,20 +63,21 @@
   (update [this game-map]
     (let [now-time (now)]
       (-> this
-        (.-update-hit now-time)
-        (.-update-energy now-time)
-        (assoc-in [:pre-x] (:x this))
-        (assoc-in [:pre-y] (:y this))
-        (assoc-in [:pre-radius] (:radius this))
-        (assoc-in [:radius] (Math/sqrt
-                             (Math/pow (- (:y this) (:center-y game-map)) 2)
-                             (Math/pow (- (:x this) (:center-x game-map)) 2))
-        (assoc-in [:theta] (double 
-                            (/ (* 180 (Math/atan2 (- (:x this) (:center-x game-map))
-                                                  (- (:center-y game-map) (:y this))))
-                               Math/PI)))
-        (update-in [:acc-x] #(* % 0.9))
-        .-update-acc .-update-acc-zero)))
+          (.-update-hit now-time)
+          (.-update-energy now-time)
+          (assoc-in [:pre-x] (:x this))
+          (assoc-in [:pre-y] (:y this))
+          (assoc-in [:pre-radius] (:radius this))
+          (assoc-in [:radius] (Math/sqrt
+                               (+ (Math/pow (- (:y this) (:center-y game-map)) 2)
+                                  (Math/pow (- (:x this) (:center-x game-map)) 2))))
+          (assoc-in [:theta] (double
+                              (/ (* 180 (Math/atan2 (- (:x this) (:center-x game-map))
+                                                    (- (:center-y game-map) (:y this))))
+                                 Math/PI)))
+          (update-in [:acc-x] #(* % 0.9))
+          .-update-acc
+          .-update-acc-zero)))
   (pack [this]
     {:id (:id this)
      :me false

@@ -37,7 +37,7 @@
       (dosync
         (alter ac-cats/cats
           (fn [x] (zipmap (-> x keys)
-                          (->> x vals (map #(update % ac-maps/default-map)))))))
+                          (->> x vals (map #(ac-cats/update % ac-maps/default-map)))))))
       (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
       (send-all-cats!)
       (println "---")
