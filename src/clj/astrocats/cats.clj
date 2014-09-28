@@ -100,14 +100,14 @@
 (defn init-cat
   [theta radius acc-x acc-y img game-map
    pre-x pre-y pre-radius]
-  (let [radian (/ (* Math/PI radius) 180)]
+  (let [radian (/ (* Math/PI theta) 180.0)]
     (map->Cat {:id (gensym)
                :theta theta
                :radius radius
-               :x (+ (. game-map -center-x)
-                     (* (Math/sin radian) radius))
-               :y (+ (. game-map -center-y)
-                     (* (Math/sin radian) radius))
+               :x (double (+ (. game-map -center-x)
+                     (* (Math/sin radian) radius)))
+               :y (double (+ (. game-map -center-y)
+                     (* (Math/cos radian) radius)))
                :pre-x pre-x :pre-y pre-y
                :life 3
                :on ""
