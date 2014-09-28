@@ -28,7 +28,7 @@
       (-> this
         (assoc-in [:acc-y] -8)
         (update-in [:y] dec)
-        (update-in [:on] "")
+        (assoc-in [:on] "")
         (update-in [:energy] dec)
         (assoc-in [:charge-start] (now))
         (assoc-in [:jump?] true))
