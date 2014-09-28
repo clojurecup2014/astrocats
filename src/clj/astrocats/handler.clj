@@ -2,7 +2,7 @@
   (:require [astrocats.map :as ac-maps]
             [astrocats.cats :as ac-cats]
             [astrocats.util :refer [now]]
-            [astrocats.gameutil :refer [calc-collisions]]
+            [astrocats.gameutil :as game]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
             [compojure.route :as route]
@@ -36,22 +36,26 @@
       ;; update cats
       (dosync
         (alter ac-cats/cats
-          (fn [x] (zipmap (-> x keys)
-                          (->> x vals (map #(ac-cats/update % ac-maps/default-map)))))))
+          (fn [x]
+            (try
+              (zipmap (-> x keys)
+                      (->> x vals (map #(ac-cats/update % ac-maps/default-map))))
+              (catch Exception e (do (.printStackTrace e)
+                                     nil))))))
       (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
       (send-all-cats!)
       (println "---")
-      (try 
-        (let [res (calc-collisions @ac-cats/cats ac-maps/blocks @ac-maps/coins ac-maps/default-map)
-              new-cats (nth 0 res)
-              new-coins (nth 1 res)]
-          (println res)
-          ;; update vars
-          (dosync
-            (alter ac-cats/cats #(new-cats)))
-          (dosync
-            (alter ac-maps/coins #(new-coins))))
-        (catch Exception e (.printStackTrace e))))))
+      (comment
+        (try
+          (let [[new-cats new-coins] (game/calc-collisions @ac-cats/cats ac-maps/blocks @ac-maps/coins ac-maps/default-map)]
+            ;; update vars
+            (println new-cats)
+            (println new-coins)
+            (dosync
+             (alter ac-cats/cats #(new-cats)))
+            (dosync
+             (alter ac-maps/coins #(new-coins))))
+          (catch Exception e (.printStackTrace e)))))))
 
 (defn- page []
   (html5 [:head [:title "astrocats"]

@@ -33,38 +33,44 @@
         (update-in [:on] "")
         (update-in [:energy] dec)
         (assoc-in [:charge-start] (now))
-        (assoc-in [:jump?] true)))
-    )
+        (assoc-in [:jump?] true))
+      this))
   (left [this]
     (case (:moving this)
       :left (update-in this [:acc-x] #(- % 0.2))
-      :right (assoc-in this [:moving] :left)))
+      :right (assoc-in this [:moving] :left)
+      this))
   (right [this]
     (case (:moving this)
       :right (update-in this [:acc-x] #(+ % 0.2))
-      :left (assoc-in this [:moving] :right)))
+      :left (assoc-in this [:moving] :right)
+      this))
   (-update-hit [this now-time]
     (if (and (> (- now-time (:last-hit-time this)) 2000)
              (:damaged this))
-      (assoc-in this [:damaged] false)))
+      (assoc-in this [:damaged] false)
+      this))
   (-update-energy [this now-time]
     (if (and (< (:energy this) 5)
              (> (- now-time (:charge-start this)) 1000))
       (-> this
           (assoc-in [:charge-start] now-time)
-          (update-in [:energy] inc))))
+          (update-in [:energy] inc))
+      this))
   (-update-acc [this]
     (case (:moving this)
       :left (update-in this [:acc-x] #(- % 0.35))
-      :right (update-in this [:acc-x] #(+ % 0.35))))
+      :right (update-in this [:acc-x] #(+ % 0.35))
+      this))
   (-update-acc-zero [this]
     (if (< (-> this :acc-x Math/abs) 0.35)
-      (assoc-in this [:acc-x] 0)))
+      (assoc-in this [:acc-x] 0)
+      this))
   (update [this game-map]
     (let [now-time (now)]
       (-> this
-          (.-update-hit now-time)
-          (.-update-energy now-time)
+          (-update-hit now-time)
+          (-update-energy now-time)
           (assoc-in [:pre-x] (:x this))
           (assoc-in [:pre-y] (:y this))
           (assoc-in [:pre-radius] (:radius this))
@@ -76,8 +82,8 @@
                                                     (- (:center-y game-map) (:y this))))
                                  Math/PI)))
           (update-in [:acc-x] #(* % 0.9))
-          .-update-acc
-          .-update-acc-zero)))
+          -update-acc
+          -update-acc-zero)))
   (pack [this]
     {:id (:id this)
      :me false
