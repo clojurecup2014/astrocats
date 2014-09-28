@@ -20,7 +20,7 @@
       new-img)))
 
 (defn- on-connect [session]
-  (if (<= (count @all-sessions) max-session)
+  (if (< (-> @ac-cats/cats vals count) max-session)
     (let [imgs (if (seq @ac-cats/cats)
                  (->> @ac-cats/cats vals (map :img) set))
           b (rand-nth ac-maps/blocks)
