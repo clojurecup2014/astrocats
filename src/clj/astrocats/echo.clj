@@ -6,10 +6,10 @@
             [clojure.data.json :refer [write-str read-str]]))
 
 (def all-sessions (ref #{}))
-(def default-imgs 
+(def default-imgs
   (->> (range 0 10) (map #(str "cat" %))))
 
-(defn rand-img 
+(defn rand-img
   [imgs]
   (let [new-img (rand-nth default-imgs)]
     (if (seq imgs)
@@ -23,24 +23,26 @@
                (->> @ac-cats/cats (map :img) set))
         b (rand-nth ac-maps/blocks)
         old-cat (get ac-cats/cats session)
-        new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)  
+        new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)
                                   (+ (:radius b) 10) 0 0
                                   (rand-img imgs) ac-maps/default-map
                                   (:x old-cat) (:y old-cat) (:raduis old-cat))]
     ;; send cat
-    (->> (assoc-in new-cat  [:type] "cat")
-         write-str
-         (ws/send! session))
+    (ws/send! session
+              (-> new-cat
+                  ac-cats/pack
+                  (assoc :type "cat" :me true)
+                  write-str))
     ;; add new-cat
-    (locksync ac-cats/cats 
+    (locksync ac-cats/cats
       (alter ac-cats/cats assoc session new-cat))
-    ;; send blocks 
+    ;; send blocks
     (->> {:type "blocks" :blocks ac-maps/blocks}
          write-str
          (ws/send! session))
     ;; send game map
     (->> (assoc-in ac-maps/default-map [:type] "map")
-         write-str 
+         write-str
          (ws/send! session))
     (dosync
       (alter all-sessions conj session))))
