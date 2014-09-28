@@ -47,7 +47,7 @@
                                  (> (:end closest-block) (- (:theta cat) (/ 2.0 now-width-rad)))))
                           false)
         new-acc-x (if is-hitfrom-side
-                    (* 0.2 (:acc-x cat))
+                    (* -0.2 (:acc-x cat))
                     (:acc-x cat))
         new-acc-y (if hitfrom-bottom
                     (* (:acc-y cat) -0.3)
