@@ -145,7 +145,7 @@
                           (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                           (assoc-in [:life] (- (cat2 :life) 1))
                           (assoc-in [:damaged] true)
-                          (assoc-in [:lasthittime] (now))) 
+                          (assoc-in [:last-hit-time] (now))) 
                       (-> cat2 
                           (assoc-in [:radius] (+ (cat2 :radius) (cat2 :height)) )
                           (assoc-in [:acc-y] -9)
@@ -163,7 +163,7 @@
                             (assoc-in [:acc-y] (* -0.2 (cat2 :acc-y)))
                             (assoc-in [:life] (- (cat2 :life) 1))
                             (assoc-in [:damaged] true)
-                            (assoc-in [:lasthittime] (now))) 
+                            (assoc-in [:last-hit-time] (now))) 
                         ]
                        [cat1 cat2])))
                    [cat1 cat2])

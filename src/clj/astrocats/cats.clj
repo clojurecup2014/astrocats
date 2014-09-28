@@ -25,7 +25,11 @@
       (-> this
         (assoc-in [:acc-y] -8)
         (update-in [:y] dec)
-        (assoc-in [:jump?] true))))
+        (update-in [:on] "")
+        (update-in [:energy] dec)
+        (assoc-in [:charge-start] (now))
+        (assoc-in [:jump?] true)))
+    )
   (left [this]
     (case (:moving this)
       :left (update-in this [:acc-x] #(- % 0.2))
@@ -59,11 +63,9 @@
         (assoc-in [:pre-x] (:x this))
         (assoc-in [:pre-y] (:y this))
         (assoc-in [:pre-radius] (:radius this))
-        (assoc-in [:radius] (-> (+
-                                  (- (:y this) (:center-y game-map)) 
-                                  (- (:x this) (:center-x game-map)))
-                                (Math/pow 2)
-                                Math/sqrt))
+        (assoc-in [:radius] (Math/sqrt
+                             (Math/pow (- (:y this) (:center-y game-map)) 2)
+                             (Math/pow (- (:x this) (:center-x game-map)) 2))
         (assoc-in [:theta] (double 
                             (/ (* 180 (Math/atan2 (- (:x this) (:center-x game-map))
                                                   (- (:center-y game-map) (:y this))))
