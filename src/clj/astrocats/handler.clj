@@ -16,7 +16,7 @@
     (let [all-cats @ac-cats/cats]
       (doseq [s (keys all-cats)]
         (when-not (nil? s)
-          (let [my-c (all-cats s)]
+          (let [my-c (get all-cats s)]
             (when-not (nil? my-c)
               (doseq [c (vals all-cats)]
                 (try
