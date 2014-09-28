@@ -35,14 +35,14 @@
                              false))
                          false)
         hitfrom-bottom (if (> (count same-rad-blocks) 0)
-                            (let [closest-block (first same-rad-blocks)]
+                            (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
                               (and (< (- (:radius closest-block) (:height closest-block)) (+ (:radius cat) (:height cat)))
                                    (> (:radius closest-block) (+ (:radius cat) (:height cat)))
                                    (> (- (:radius cat) (:pre-radius cat)) 0))
                               )
                             false)
         is-hitfrom-side (if (> (count same-height-blocks) 0)
-                          (let [closest-block (first same-height-blocks)]
+                          (let [closest-block (get-closest-block-with-theta same-height-blocks)]
                             (and (< (:start closest-block) (+ (:theta cat) (/ 2.0 now-width-rad)))
                                  (> (:end closest-block) (- (:theta cat) (/ 2.0 now-width-rad)))))
                           false)
