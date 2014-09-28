@@ -30,8 +30,10 @@
 
 (defn init-block
   [start end radius height]
-  (map->Block {:id (str (gensym)) :radius radius
-               :start start :end end
+  (map->Block {:id (str (gensym))
+               :radius radius
+               :start start
+               :end end
                :height height}))
 
 (defrecord Map [width height ground-y

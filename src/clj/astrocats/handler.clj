@@ -35,6 +35,7 @@
       ;; (println "---")
       (Thread/sleep 10)
       ;; update cats
+      ;; (println (now) "cat :" (count (keys @ac-cats/cats)) ":" (vals @ac-cats/cats))
       (dosync
         (alter ac-cats/cats
           (fn [x]
@@ -43,18 +44,21 @@
                       (->> x vals (map #(ac-cats/update % ac-maps/default-map))))
               (catch Exception e (do (.printStackTrace e)
                                      nil))))))
-      ;; (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
+      ;; (println (now) "cat :" (count (keys @ac-cats/cats)) ":" (vals @ac-cats/cats))
       (send-all-cats!)
       (try
         (let [[new-cats new-coins] (game/calc-collisions @ac-cats/cats ac-maps/blocks @ac-maps/coins ac-maps/default-map)]
           ;; update vars
-          (println new-cats)
-          (println new-coins)
+          ;; (println new-cats)
+          ;; (println new-coins)
           (dosync
            (ref-set ac-cats/cats new-cats)
            (ref-set ac-maps/coins new-coins)))
         (catch Exception e (do (.printStackTrace e)
-                               nil))))))
+                               (System/exit 1)
+                               nil)))
+      ;; (println (now) "cat :" (count (keys @ac-cats/cats)) ":" (vals @ac-cats/cats))
+      )))
 
 (defn- page []
   (html5 [:head [:title "astrocats"]

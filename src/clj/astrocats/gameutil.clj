@@ -17,31 +17,43 @@
                                (Math/abs (- (:theta cat) (* (+ (:start %2) (:end %2)) 0.5)))) blocks)]
     (first sorted)))
 
+(defn normalize-theta
+  [t]
+  (loop [theta t]
+    (cond
+     (< 180 t) (recur (- t 180))
+     (< t -180) (recur (+ t 180))
+     :else t)))
+
 (defn calc-block-collision
   [cat blocks]
-  (let [now-width-rad (* 180 (/ (:width cat) (* Math/PI (:radius cat))))
-        same-rad-blocks (for [b blocks :when (if (and (< (:start b) (+ (:theta cat) (* now-width-rad 0.5)))
-                                                      (> (:end b) (- (:theta cat) (* now-width-rad 0.5))))
-                                               b)] b)
-        same-height-blocks (for [b blocks :when (if (and (< (:radius b) (+ (:radius cat) (* 0.75 (:height cat))))
-                                                         (> (:radius b) (+ (:radius cat) (* 0.25 (:height cat)))))
-                                                  b)] b)
-        hitfrom-top (if (> (count same-rad-blocks) 0)
+  (let [t (normalize-theta (:theta cat))
+        now-width-rad (* 180 (/ (:width cat) (* Math/PI (:radius cat))))
+        same-rad-blocks (filter
+                         (fn [b]
+                           (and (< (:start b) (+ t (* now-width-rad 0.5)))
+                                (> (:end b) t (- t (* now-width-rad 0.5)))))
+                         blocks)
+        same-height-blocks (filter
+                            (fn [b]
+                              (and (< (:radius b) (+ (:radius cat) (* 0.75 (:height cat))))
+                                   (> (:radius b) (+ (:radius cat) (* 0.25 (:height cat))))))
+                            blocks)
+        hitfrom-top (if ((complement empty?) same-rad-blocks)
+                      (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
+                        (if (and (> (:radius closest-block) (:radius cat))
+                                 (< (- (:radius closest-block) (:height closest-block)) (:radius cat))
+                                 (neg? (- (:radius cat) (:pre-radius cat))))
+                          {:id (:id closest-block) :radius (:radius closest-block)}
+                          false))
+                      false)
+        hitfrom-bottom (if ((complement empty?) same-rad-blocks)
                          (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
-                           (if (and (> (:radius closest-block) (:radius cat))
-                                (< (- (:radius closest-block) (:radius cat)) (:radius cat))
-                                (< (- (:radius cat) (:pre-radius cat)) 0))
-                             {:id (:id closest-block) :radius (:radius closest-block)}
-                             false))
+                           (and (< (- (:radius closest-block) (:height closest-block)) (+ (:radius cat) (:height cat)))
+                                (> (:radius closest-block) (+ (:radius cat) (:height cat)))
+                                (pos? (- (:radius cat) (:pre-radius cat)))))
                          false)
-        hitfrom-bottom (if (> (count same-rad-blocks) 0)
-                            (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
-                              (and (< (- (:radius closest-block) (:height closest-block)) (+ (:radius cat) (:height cat)))
-                                   (> (:radius closest-block) (+ (:radius cat) (:height cat)))
-                                   (> (- (:radius cat) (:pre-radius cat)) 0))
-                              )
-                            false)
-        is-hitfrom-side (if (> (count same-height-blocks) 0)
+        is-hitfrom-side (if ((complement empty?) same-height-blocks)
                           (let [closest-block (get-closest-block-with-theta cat same-height-blocks)]
                             (and (< (:start closest-block) (+ (:theta cat) (/ 2.0 now-width-rad)))
                                  (> (:end closest-block) (- (:theta cat) (/ 2.0 now-width-rad)))))
@@ -53,8 +65,8 @@
                     (* (:acc-y cat) -0.3)
                     (:acc-y cat))
         new-cat (if hitfrom-top
-                    {:radius (:radius hitfrom-top) :acc-y 0 :on (:id hitfrom-top) :energy 5}
-                    {:radius (:radius cat) :acc-y new-acc-y :on (:on cat) :energy (:energy cat)})]
+                  {:radius (:radius hitfrom-top) :acc-y 0 :on (:id hitfrom-top) :energy 5}
+                  {:radius (:radius cat) :acc-y new-acc-y :on (:on cat) :energy (:energy cat)})]
     (-> cat
         (assoc-in [:acc-x] new-acc-x)
         (assoc-in [:radius] (:radius new-cat))
@@ -169,7 +181,6 @@
 
 (defn calc-on
   [cat blocks maps]
-  (println "calc-on: " cat)
   (let [theta (/ (* (:theta cat) Math/PI) 180.0)
         theta-x (* (:acc-x cat) (Math/cos theta))
         theta-y (* (:acc-x cat) (Math/sin theta))
