@@ -80,7 +80,7 @@
   nil)
 
 (defn- on-error [session e]
-  (.printStackTrace e)
+  (println (->> (get @ac-cats/cats) :img " has unexceptedly closed."))
   (dosync
    (alter all-sessions disj session))
   (dosync
