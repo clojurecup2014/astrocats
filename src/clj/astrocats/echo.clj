@@ -23,8 +23,10 @@
         b (rand-nth ac-maps/blocks)
         old-cat (get ac-cats/cats session)
         new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)
-                                  (+ (:radius b) 10) 0 0
-                                  (rand-img imgs) ac-maps/default-map
+                                  (+ (:radius b) 10)
+                                  0 0
+                                  (rand-img imgs)
+                                  ac-maps/default-map
                                   (:x old-cat) (:y old-cat) (:raduis old-cat))]
     ;; send cat
     (ws/send! session
@@ -59,12 +61,7 @@
               (alter ac-cats/cats #(case (:key dt)
                                     "left" (update-in % [session] ac-cats/left)
                                     "right" (update-in % [session] ac-cats/right)
-                                    "jump" (update-in % [session] ac-cats/jump))))
-      (doseq [s @all-sessions]
-        (ws/send! s (str
-                     (.. session getSession getRemoteAddress getHostName)
-                     ":"
-                     message))))))
+                                    "jump" (update-in % [session] ac-cats/jump)))))))
 
 (defn- on-bytes [session payload offset len]
   nil)

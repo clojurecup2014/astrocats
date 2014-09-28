@@ -34,15 +34,18 @@
                :start start :end end
                :height height}))
 
-(defrecord Map [width height ground-y 
+(defrecord Map [width height ground-y
                 center-x center-y])
 
 (defn init-map
   ([]
     (init-map 800 600 80))
   ([width height ground]
-    (map->Map {:width width :height height :ground-y ground 
-               :center-x (/ width 2) :center-y (/ height 2)})))
+    (map->Map {:width width
+               :height height
+               :ground-y ground
+               :center-x (/ width 2)
+               :center-y (/ height 2)})))
 
 (def default-blocks
   [[10 30 240 10]
@@ -64,7 +67,7 @@
 
 (comment
 (defn send-coins! []
-  (pmap #(->> {:type "coins" :coins @coins} 
-              write-str 
+  (pmap #(->> {:type "coins" :coins @coins}
+              write-str
               (ws/send! %)) (->> @cats (map key) vec)))
   )

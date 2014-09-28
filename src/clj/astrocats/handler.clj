@@ -13,35 +13,37 @@
 
 (defn- send-all-cats! []
   (dosync
-   (let [all-cats @ac-cats/cats]
-     (doseq [s (keys all-cats)]
-       (let [my-c (all-cats s)]
-         (doseq [c (vals all-cats)]
-           (try
-             (ws/send! s (-> c
-                             ac-cats/pack
-                             (assoc :type "cat"
-                                    :me (= my-c c))
-                             write-str))
-             (catch Exception e (do (.printStackTrace e)
-                                    nil)))))))))
+    (let [all-cats @ac-cats/cats]
+      (doseq [s (keys all-cats)]
+        (when-not (nil? s)
+          (let [my-c (all-cats s)]
+            (when-not (nil? my-c)
+              (doseq [c (vals all-cats)]
+                (try
+                  (ws/send! s (-> c
+                                  ac-cats/pack
+                                  (assoc :type "cat"
+                                         :me (= my-c c))
+                                  write-str))
+                  (catch Exception e (do (.printStackTrace e)
+                                         nil)))))))))))
 
 (defn init []
   (println "init")
   (future
     (while true
-      (println "---")
-      (Thread/sleep 1000)
+      ;; (println "---")
+      (Thread/sleep 10)
       ;; update cats
       (dosync
-       (alter ac-cats/cats
-              (fn [x]
-                (try
-                  (zipmap (-> x keys)
-                          (->> x vals (map #(ac-cats/update % ac-maps/default-map))))
-                  (catch Exception e (do (.printStackTrace e)
-                                         nil))))))
-      (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
+        (alter ac-cats/cats
+          (fn [x]
+            (try
+              (zipmap (-> x keys)
+                      (->> x vals (map #(ac-cats/update % ac-maps/default-map))))
+              (catch Exception e (do (.printStackTrace e)
+                                     nil))))))
+      ;; (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
       (send-all-cats!)
       (try
         (let [[new-cats new-coins] (game/calc-collisions @ac-cats/cats ac-maps/blocks @ac-maps/coins ac-maps/default-map)]
@@ -51,8 +53,8 @@
           (dosync
            (ref-set ac-cats/cats new-cats)
            (ref-set ac-maps/coins new-coins)))
-        (catch Exception e (.printStackTrace e)))
-      (println "---"))))
+        (catch Exception e (do (.printStackTrace e)
+                               nil))))))
 
 (defn- page []
   (html5 [:head [:title "astrocats"]
