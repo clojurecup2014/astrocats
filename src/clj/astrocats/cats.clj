@@ -94,17 +94,19 @@
      :damaged (:damaged? this)}))
 
 (defn init-cat
-  [theta radius acc-x acc-y img game-map
-   pre-x pre-y pre-radius]
-  (let [radian (/ (* Math/PI theta) 180.0)]
+  [theta radius acc-x acc-y img game-map]
+  (let [radian  (- Math/PI (/ (* Math/PI theta) 180.0))]
     (map->Cat {:id (str (gensym))
                :theta theta
                :radius radius
-               :x (double (+ (. game-map -center-x)
-                     (* (Math/sin radian) radius)))
-               :y (double (+ (. game-map -center-y)
-                     (* (Math/cos radian) radius)))
-               :pre-x pre-x :pre-y pre-y
+               :x (double (+ (:center-x game-map)
+                             (* (Math/sin radian) radius)))
+               :y (double (+ (:center-y game-map)
+                             (* (Math/cos radian) radius)))
+               :pre-x (double (+ (:center-x game-map)
+                                 (* (Math/sin radian) radius)))
+               :pre-y (double (+ (:center-y game-map)
+                                 (* (Math/cos radian) radius)))
                :life 3
                :on ""
                :width 32
@@ -114,7 +116,7 @@
                :img img
                :energy 5
                :charge-start 0
-               :pre-radius pre-radius
+               :pre-radius radius
                :last-hit-time 0
                :damaged? false
                :jump? false
