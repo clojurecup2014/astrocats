@@ -3,7 +3,7 @@
             [astrocats.cats :as ac-cats]
             [astrocats.macros :refer [locksync]]
             [astrocats.util :refer [now]]
-            ;;[astrocats.gameutil :refer [collision]]
+            [astrocats.gameutil :refer [calc-collisions]]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
             [compojure.route :as route]
@@ -39,18 +39,21 @@
         (sync
           (alter ac-cats/cats
             (fn [x] (zipmap (-> x keys)
-                            (->> x vals (map update)))))))
+                            (->> x vals (map #(update % ac-maps/default-map))))))))
       (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
       (send-all-cats!)
       (println "---")
-      (comment
-        (let [res (collision @ac-cats/cats @ac-maps/blocks @ac-maps/coins)
+      (try 
+        (let [res (calc-collisions @ac-cats/cats ac-maps/blocks @ac-maps/coins ac-maps/default-map)
               new-cats (nth 0 res)
               new-coins (nth 1 res)]
+          (println res)
           ;; update vars
-          (dosync
-            (alter ac-cats/cats #(new-cat))
-            (alter ac-maps/coins #(new-coins))))))))
+          (locksync ac-cats/cats
+            (alter ac-cats/cats #(new-cats)))
+          (locksync ac-maps/coins
+            (alter ac-maps/coins #(new-coins))))
+        (catch Exception e (.printStackTrace e))))))
 
 (defn- page []
   (html5 [:head [:title "astrocats"]

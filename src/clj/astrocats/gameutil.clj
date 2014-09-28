@@ -257,7 +257,7 @@
 
 (defn calc-collisions
   [cats blocks coins maps]
-  (let [cat-blocks (mapv (fn [c] (calc-block-ground-collision c blocks map)) cats)
+  (let [cat-blocks (mapv (fn [c] (calc-block-ground-collision c blocks maps)) cats)
         result-cats (mapv (fn [c] (get-collisioned-cats c coins)) cat-blocks)
         result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)
         ]
