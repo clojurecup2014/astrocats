@@ -18,9 +18,7 @@
 
 (defrecord Cat [id theta radius x y pre-x pre-y
                 life on width height moving
-                acc-x acc-y
-                img
-                hit coin energy charge-start
+                acc-x acc-y img energy charge-start
                 pre-radius last-hit-time damaged? jump?
                 key ; TODO remove?
                 score]
@@ -118,8 +116,6 @@
                :moving :left
                :acc-x acc-x :acc-y acc-y
                :img img
-               :hit 0
-               :coin 0
                :energy 5
                :charge-start 0
                :pre-radius pre-radius
