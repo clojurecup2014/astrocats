@@ -20,16 +20,16 @@
       new-img)))
 
 (defn- on-connect [session]
-  (if (> (count @all-sessions) max-session)
+  (if (<= (count @all-sessions) max-session)
     (let [imgs (if (seq @ac-cats/cats)
                  (->> @ac-cats/cats vals (map :img) set))
           b (rand-nth ac-maps/blocks)
           theta (/ (+ (:start b) (:end b)) 2)
           radian (/ (* Math/PI theta) 180.0)
           old-x (double (+ (. ac-maps/default-map -center-x)
-              (* (Math/sin radian) (:radius b))))
-          old-y (double (+ (. ac-maps/default-map -center-y)
               (* (Math/cos radian) (:radius b))))
+          old-y (double (+ (. ac-maps/default-map -center-y)
+              (* (Math/sin radian) (:radius b))))
           new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)
                                     (+ (:radius b) 10)
                                     0 0
