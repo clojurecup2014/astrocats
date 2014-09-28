@@ -30,7 +30,7 @@
                          (let [closest-block (get-closest-block-with-r cat same-rad-blocks)]
                            (if (and (> (:radius closest-block) (:radius cat))
                                 (< (- (:radius closest-block) (:radius cat)) (:radius cat))
-                                (< (- (:raduis cat) (:pre-radius cat)) 0))
+                                (< (- (:radius cat) (:pre-radius cat)) 0))
                              {:id (:id closest-block) :radius (:radius closest-block)}
                              false))
                          false)
