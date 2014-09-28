@@ -22,7 +22,7 @@
                 pre-radius last-hit-time damaged? jump? score]
   ICat
   (jump [this]
-    (if (and (> (:energy this) 0) (> (- (now) (:charge-start this)) 200))
+    (if (and (> (:energy this) 0) (> (- (now) (:charge-start this)) 350))
       (-> this
         (assoc-in [:acc-y] -10)
         (assoc-in [:on] "")
@@ -57,7 +57,7 @@
       (assoc-in this [:acc-x] 0)
       this))
   (-update-jump-flg [this now-time]
-    (if (> (- now-time (:charge-start this)) 150)
+    (if (> (- now-time (:charge-start this)) 330)
       (-> this (assoc-in [:jump?] false))
       this))
   (update [this game-map]
