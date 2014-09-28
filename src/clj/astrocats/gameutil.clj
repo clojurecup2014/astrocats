@@ -38,7 +38,7 @@
                             (let [closest-block (first same-rad-blocks)]
                               (and (< (- (:radius closest-block) (:height closest-block)) (+ (:radius cat) (:height cat)))
                                    (> (:radius closest-block) (+ (:radius cat) (:height cat)))
-                                   (> (- (:raduis cat) (:pre-radius cat)) 0))
+                                   (> (- (:radius cat) (:pre-radius cat)) 0))
                               )
                             false)
         is-hitfrom-side (if (> (count same-height-blocks) 0)
