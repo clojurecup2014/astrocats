@@ -25,6 +25,52 @@
      (< t -180) (recur (+ t 180))
      :else t)))
 
+
+(defn calc-cats-c
+  [c catt]
+  (let [cats (filter #(not= % c) catt)
+        t (normalize-theta (:theta c))
+        now-width-rad (get-width-rad c)
+        same-rad-cats (filter
+                         (fn [b] (let [b-width-rad (get-width-rad b)]
+                                  (and (< (- (:theta b) (/ b-width-rad 2))
+                                          (+ (:theta c) (/ now-width-rad 2)))
+                                       (> (+ (:theta b) (/ b-width-rad 2))
+                                         (- (:theta c) (/ now-width-rad 2))))))
+                         cats)
+        hitfrom-top (if ((complement empty?) same-rad-cats)
+                      (let [closest-cat (get-closest-block-with-r c same-rad-cats)]
+                        (if (and (> (:radius closest-cat) (:radius c))
+                                 (< (- (:radius closest-cat) (:height closest-cat)) (:radius c))
+                             (neg? (- (:radius c) (:pre-radius c))))
+                          {:id (:id closest-cat) :radius (:radius closest-cat)}
+                          false))
+                      false)
+        hitfrom-bottom (if ((complement empty?) same-rad-cats)
+                         (let [closest-cat (get-closest-block-with-r c same-rad-cats)]
+                           (and (< (- (:radius closest-cat) (:height closest-cat)) (+ (:radius c) (:height c)))
+                                (> (:radius closest-cat) (+ (:radius c) (:height c)))
+                                (pos? (- (:radius c) (:pre-radius c)))))
+                         false)
+        test (println (count same-rad-cats) hitfrom-top " " hitfrom-bottom)]
+    (if hitfrom-top
+      (-> c
+          (assoc-in [:acc-y] -9)
+          (assoc-in [:score] (+ (:score c) 50)))
+      (if hitfrom-bottom
+        (-> c
+            (assoc-in [:acc-y] (* -0.2 (:acc-y c)))
+            (assoc-in [:life] (- (:life c) 1))
+            (assoc-in [:damaged] true)
+            (assoc-in [:last-hit-time] (now)))
+        c
+        )
+      )
+    )
+  )
+
+
+
 (defn calc-block-collision
   [cat blocks]
   (let [t (normalize-theta (:theta cat))
@@ -133,7 +179,7 @@
                             (> difspeed 0)
                             (not (:damaged cat1)))
                      [(-> cat1
-                          (assoc-in [:acc-y] (* -0.2 (:acc-y cat2)))
+                          (assoc-in [:acc-y] (* -0.2 (:acc-y cat1)))
                           (assoc-in [:life] (- (:life cat2) 1))
                           (assoc-in [:damaged] true)
                           (assoc-in [:last-hit-time] (now)))
@@ -158,6 +204,11 @@
                        [cat1 cat2])))
                    [cat1 cat2])]
     new-cats))
+
+
+(defn calc-cats-collisions-beta
+  [cats]
+  (mapv (fn [c] (calc-cats-c c cats)) cats))
 
 (defn calc-cats-collisions
   [cats]
@@ -244,7 +295,7 @@
  (let [cat-blocks (mapv #(calc-block-ground-collision % blocks maps) (vals cats))
        result-cats (->> cat-blocks
                         (mapv #(get-collisioned-cats % coins))
-                        calc-cats-collisions)
+                        calc-cats-collisions-beta)
        result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)]
     [(zipmap (keys cats) result-cats)
      result-coins]))
