@@ -24,18 +24,19 @@
     (let [imgs (if (seq @ac-cats/cats)
                  (->> @ac-cats/cats vals (map :img) set))
           b (rand-nth ac-maps/blocks)
-          theta (/ (+ (:start b) (:end b)) 2)
+          theta (+ (:start b) (:end b))
+          radius (+ (:radius b) 20)
           radian (/ (* Math/PI theta) 180.0)
           old-x (double (+ (. ac-maps/default-map -center-x)
-              (* (Math/cos radian) (:radius b))))
+              (* (Math/sin radian) radius)))
           old-y (double (+ (. ac-maps/default-map -center-y)
-              (* (Math/sin radian) (:radius b))))
-          new-cat (ac-cats/init-cat (/ (+ (:start b) (:end b)) 2)
-                                    (+ (:radius b) 10)
+              (* (Math/cos radian) radius)))
+          new-cat (ac-cats/init-cat theta
+                                    radius
                                     0 0
                                     (rand-img imgs)
                                     ac-maps/default-map
-                                    old-x old-y (:radius b))]
+                                    old-x old-y radius)]
       ;; send cat
       (ws/send! session
                 (-> new-cat

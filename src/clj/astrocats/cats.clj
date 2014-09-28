@@ -32,12 +32,12 @@
       this))
   (left [this]
     (case (:moving this)
-      :left (update-in this [:acc-x] #(- % 1.5))
+      :left (update-in this [:acc-x] #(- % 2.6))
       :right (assoc-in this [:moving] :left)
       this))
   (right [this]
     (case (:moving this)
-      :right (update-in this [:acc-x] #(+ % 1.5))
+      :right (update-in this [:acc-x] #(+ % 2.6))
       :left (assoc-in this [:moving] :right)
       this))
   (-update-hit [this now-time]
@@ -101,9 +101,9 @@
                :theta theta
                :radius radius
                :x (double (+ (. game-map -center-x)
-                     (* (Math/cos radian) radius)))
-               :y (double (+ (. game-map -center-y)
                      (* (Math/sin radian) radius)))
+               :y (double (+ (. game-map -center-y)
+                     (* (Math/cos radian) radius)))
                :pre-x pre-x :pre-y pre-y
                :life 3
                :on ""
