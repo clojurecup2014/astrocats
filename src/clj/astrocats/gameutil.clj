@@ -1,5 +1,5 @@
 (ns astrocats.gameutil
-  [astrocats.util :refer [now]])
+  (:require [astrocats.util :refer [now]]))
 
 (defn- get-width-rad [cat]
   (* 180 (/ (cat :width) (* Math/PI (cat :radius))))

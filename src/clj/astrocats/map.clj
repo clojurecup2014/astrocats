@@ -2,7 +2,16 @@
   (:require [clojure.data.json :refer [write-str read-str]]
             [ring-jetty.util.ws :as ws]))
 
-(defrecord Coin [id radius theta exist])
+(defprotocol IPackable
+  (pack [this]))
+
+(defrecord Coin [id radius theta exist]
+  IPackable
+  (pack [this]
+    {:id (:id this)
+     :theta (:theta this)
+     :radius (:radius this)
+     :exist (:exist this)}))
 
 (def coins (ref #{}))
 
@@ -11,7 +20,13 @@
   (map->Coin {:id (gensym) :radius radius
               :theta theta :exist true}))
 
-(defrecord Block [id radius start end height])
+(defrecord Block [id radius start end height]
+  IPackable
+  (pack [this]
+    {:id (:id this)
+     :start (:start this)
+     :end (:end this)
+     :radius (:radius this)}))
 
 (defn init-block
   [start end radius height]

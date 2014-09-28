@@ -13,12 +13,17 @@
   (-update-hit [this now-time])
   (-update-energy [this now-time])
   (-update-acc [this])
-  (-update-acc-zero [this]))
+  (-update-acc-zero [this])
+  (pack [this]))
 
 (defrecord Cat [id theta radius x y pre-x pre-y
                 life on width height moving
-                acc-x acc-y img hit coin energy charge-start
-                pre-radius last-hit-time damaged key jump?]
+                acc-x acc-y
+                img
+                hit coin energy charge-start
+                pre-radius last-hit-time damaged? jump?
+                key ; TODO remove?
+                score]
   ICat
   (jump [this]
     (if (> (:energy this) 0)
@@ -71,26 +76,48 @@
                                                   (- (:center-y game-map) (:y this))))
                                Math/PI)))
         (update-in [:acc-x] #(* % 0.9))
-        .-update-acc .-update-acc-zero))))
+        .-update-acc .-update-acc-zero)))
+  (pack [this]
+    {:id (:id this)
+     :me false
+     :theta (:theta this)
+     :radius (:radius this)
+     :vx (:acc-x this) ; TODO rename!
+     :vy (:acc-y this) ; TODO rename!
+     :moving (:moving this)
+     :img (:img this)
+     :score (:score this)
+     :life (:life this)
+     :energy (:energy this)
+     :jump (:jump? this)
+     :damaged (:damaged? this)}))
 
 (defn init-cat
-  [theta radius acc-x acc-y img game-map 
+  [theta radius acc-x acc-y img game-map
    pre-x pre-y pre-radius]
   (let [radian (/ (* Math/PI radius) 180)]
-    (map->Cat {:id (gensym) :theta theta :radius radius
+    (map->Cat {:id (gensym)
+               :theta theta
+               :radius radius
                :x (+ (. game-map -center-x)
                      (* (Math/sin radian) radius))
                :y (+ (. game-map -center-y)
                      (* (Math/sin radian) radius))
-               :pre-x pre-x :pre-y pre-y :moving :left
-               :life 3 :on "" :width 32 :height 32
-               :acc-x acc-x :acc-y acc-y :img img
-               :hit 0 :coin 0 :energy 5 :charge-start 0
-               :pre-radius pre-radius :last-hit-time 0
-               :damaged false :jump? false :key nil})))
-
-(defn send-cats! []
-  (pmap #(->> (assoc-in (val  %) [:type] "cat")
-              write-str
-              (ws/send! (key %))) 
-        @cats))
+               :pre-x pre-x :pre-y pre-y
+               :life 3
+               :on ""
+               :width 32
+               :height 32
+               :moving :left
+               :acc-x acc-x :acc-y acc-y
+               :img img
+               :hit 0
+               :coin 0
+               :energy 5
+               :charge-start 0
+               :pre-radius pre-radius
+               :last-hit-time 0
+               :damaged? false
+               :jump? false
+               :key nil
+               :score 0})))
