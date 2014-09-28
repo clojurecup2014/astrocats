@@ -40,7 +40,9 @@
     ;; set open websocket handler
     (socket/listen! @ws :open (fn [e]))
     ;; set msg websocket handler
-    (socket/listen! @ws :msg (fn [e] (ac-view/call-event! (. e -data)))))
+    (socket/listen! @ws :msg (fn [e] (ac-view/call-event! (. e -data))))
+    ;; set error websocket handler
+    (socket/listen! @ws :error (fn [e] (js/alert (. e -data)))))
 
 (defn ^:export main []
     ;; start view
