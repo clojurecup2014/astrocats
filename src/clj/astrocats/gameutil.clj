@@ -1,17 +1,16 @@
 (ns astrocats.gameutil
   (:require [astrocats.util :refer [now]]
-            [ring-jetty.util.ws :as ws]))
+            [ring-jetty.util.ws :as ws]
+            [astrocats.cats :as ac-cats]
+            [clojure.data.json :refer [write-str read-str]]))
 
 (defn- get-width-rad [cat]
-  (* 180 (/ (:width cat) (* Math/PI (:radius cat))))
-  )
-
+  (* 180 (/ (:width cat) (* Math/PI (:radius cat)))))
 
 (defn- get-closest-block-with-r [cat blocks]
   (let [sorted (sort #(compare (Math/abs (- (:radius cat) (:radius %1)))
                                (Math/abs (- (:radius cat) (:radius %2)))) blocks)]
     (first sorted)))
-
 
 (defn- get-closest-block-with-theta [cat blocks]
   (let [sorted (sort #(compare (Math/abs (- (:theta cat) (* (+ (:start %1) (:end %1)) 0.5)))
@@ -235,8 +234,20 @@
                         (mapv #(get-collisioned-cats % coins))
                         calc-cats-collisions)
        result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)
-       lost-cats (filter (fn [[s c]] (>= 0 (:life c)))
-                         (zipmap (keys cats) result-cats))]
+       lost-cats (apply hash-map (flatten
+                     (filter (fn [[s c]] (>= 0 (:life c)))
+                             (zipmap (keys cats) result-cats))))]
+   (doseq [s (keys cats)]
+     (when-not (nil? s)
+       (doseq [[ls lc] lost-cats]
+         (try
+           (ws/send! s (-> lc
+                           ac-cats/pack
+                           (assoc :type "cat"
+                                  :me (= s ls))
+                           write-str))
+           (catch Exception e (do (.printStackTrace e)
+                                  nil))))))
    (doseq [[s _] lost-cats]
      (ws/close! s))
    [(apply hash-map (flatten

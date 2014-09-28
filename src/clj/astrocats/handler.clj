@@ -13,20 +13,20 @@
 
 (defn- send-all-cats! []
   (dosync
-    (let [all-cats @ac-cats/cats]
-      (doseq [s (keys all-cats)]
-        (when-not (nil? s)
-          (let [my-c (get all-cats s)]
-            (when-not (nil? my-c)
-              (doseq [c (vals all-cats)]
-                (try
-                  (ws/send! s (-> c
-                                  ac-cats/pack
-                                  (assoc :type "cat"
-                                         :me (= my-c c))
-                                  write-str))
-                  (catch Exception e (do (.printStackTrace e)
-                                         nil)))))))))))
+   (let [all-cats @ac-cats/cats]
+     (doseq [s (keys all-cats)]
+       (when-not (nil? s)
+         (let [my-c (get all-cats s)]
+           (when-not (nil? my-c)
+             (doseq [c (vals all-cats)]
+               (try
+                 (ws/send! s (-> c
+                                 ac-cats/pack
+                                 (assoc :type "cat"
+                                        :me (= my-c c))
+                                 write-str))
+                 (catch Exception e (do (.printStackTrace e)
+                                        nil)))))))))))
 
 (defn init []
   (println "init")
