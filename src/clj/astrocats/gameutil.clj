@@ -26,7 +26,7 @@
      :else t)))
 
 
-(defn calc-cats-c
+(defn calc-cats
   [c catt]
   (let [cats (filter #(not= % c) catt)
         t (normalize-theta (:theta c))
@@ -156,77 +156,10 @@
       c
       (recur (+ 1 i) max (first (calc-coin-collision c (nth coins i)))))))
 
-(defn calc-collision
-  [cat1 cat2]
-  (let [cat1-width-rad (get-width-rad cat1)
-        cat2-width-rad (get-width-rad cat2)
-        difspeed (- (- (:radius cat1) (:pre-radius cat2)) (- (:radius cat2) (:pre-radius cat2)))
-        is-rad-col (and (< (- (:theta cat2) (/ cat2-width-rad 2))
-                           (+ (:theta cat1) (/ cat1-width-rad 2)))
-                        (> (+ (:theta cat2) (/ cat2-width-rad 2))
-                           (- (:theta cat1) (/ cat1-width-rad 2))))
-        new-cats (if is-rad-col
-                   (if (and  (> (+ (:radius cat2) (:height cat2)) (:radius cat1))
-                             (< (:radius cat2) (+ (:radius cat1) (:height cat1)))
-                             (> 0.5 difspeed -0.5))
-                     [(-> cat1
-                          (assoc-in [:acc-x] (* -1 (:acc-x cat1))))
-                      (-> cat2
-                          (assoc-in [:acc-x] (* -1 (:acc-x cat2))))]
-                   (if (and (> (+ (:radius cat2)
-                                  (* (:height cat2) 0.333))
-                               (+ (:radius cat1)
-                                  (:height cat1)))
-                            (< (:radius cat2) (+ (:radius cat1) (:height cat1)))
-                            (> difspeed 0)
-                            (not (:damaged cat1)))
-                     [(-> cat1
-                          (assoc-in [:acc-y] (* -0.2 (:acc-y cat1)))
-                          (assoc-in [:life] (- (:life cat2) 1))
-                          (assoc-in [:damaged] true)
-                          (assoc-in [:last-hit-time] (now)))
-                      (-> cat2
-                          (assoc-in [:radius] (+ (:radius cat2) (:height cat2)) )
-                          (assoc-in [:acc-y] -9)
-                          (assoc-in [:score] (+ (:score cat1) 50)))]
-                     (if
-                         (and (> (+ (:radius cat2) (:height cat2)) (:radius cat1))
-                              (< (+ (:radius cat2) (* (:height cat2) 0.666)) (:radius cat1))
-                              (< difspeed 0)
-                              (not (:damaged cat2)))
-                       [(-> cat1
-                            (assoc-in [:radius] (+ (:radius cat2) (:height cat2)) )
-                            (assoc-in [:acc-y] -9)
-                            (assoc-in [:score] (+ (:score cat1) 50)))
-                        (-> cat2
-                            (assoc-in [:acc-y] (* -0.2 (:acc-y cat2)))
-                            (assoc-in [:life] (- (:life cat2) 1))
-                            (assoc-in [:damaged] true)
-                            (assoc-in [:last-hit-time] (now)))]
-                       [cat1 cat2])))
-                   [cat1 cat2])]
-    new-cats))
-
-
-(defn calc-cats-collisions-beta
-  [cats]
-  (mapv (fn [c] (calc-cats-c c cats)) cats))
 
 (defn calc-cats-collisions
   [cats]
-  (mapv
-   (fn [c]
-     (let [targets (filter #(not= % c) cats)]
-       (loop [rtargets targets]
-         (if (empty? rtargets)
-           c
-           (let [t (first targets)
-                 [nc nt] (calc-collision c t)]
-             (if (not= c nc)
-               nc                      ;; when collision
-               (recur (rest rtargets)) ;; when NOT collision
-               ))))))
-   cats))
+  (mapv (fn [c] (calc-cats c cats)) cats))
 
 (defn get-now-block
   [blocks id]
@@ -262,7 +195,7 @@
         new-param2 (if (> (:ground-y maps) (:radius new-param))
                      (-> new-param
                          (assoc-in [:acc-y] 0)
-                         (assoc-in [:life] 1)
+                         (assoc-in [:life] 0)
                          (assoc-in [:on] "ground"))
                      (-> new-param
                          (assoc-in [:life] (:life cat))
@@ -292,12 +225,13 @@
       (calc-on blocks maps)
       (calc-block-collision blocks)))
 
+
 (defn calc-collisions
  [cats blocks coins maps]
  (let [cat-blocks (mapv #(calc-block-ground-collision % blocks maps) (vals cats))
        result-cats (->> cat-blocks
                         (mapv #(get-collisioned-cats % coins))
-                        calc-cats-collisions-beta)
+                        calc-cats-collisions)
        result-coins (mapv (fn [c] (get-collisioned-coins c cat-blocks)) coins)]
     [(zipmap (keys cats) result-cats)
      result-coins]))
