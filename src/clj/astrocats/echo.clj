@@ -52,7 +52,6 @@
         (alter all-sessions conj session)))
     ;; full of max sessions
     (do
-      (ws/send! session "full!!")
       (ws/close! session))))
 
 (defn- on-close [session code reason]
