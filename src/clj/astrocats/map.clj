@@ -46,8 +46,8 @@
     (map->Map {:width width
                :height height
                :ground-y ground
-               :center-x (/ width 2)
-               :center-y (/ height 2)})))
+               :center-x (- (/ width 2) 50)
+               :center-y (+ (/ height 2) 150)})))
 
 (def default-blocks
   [[10 30 240 10]
