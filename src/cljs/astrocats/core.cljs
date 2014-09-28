@@ -30,9 +30,9 @@
       (reset! z-state :pressed))
   (reset! last-z (now))
   (js/setTimeout (fn []
-                   (when (<= (+ @last-z 20) (now))
+                   (when (<= (+ @last-z 4) (now))
                      (reset! z-state :release)))
-                 30))
+                 5))
 
 (defn listen-start! []
     (reset! ws (socket/socket

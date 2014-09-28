@@ -55,7 +55,6 @@
            (ref-set ac-cats/cats new-cats)
            (ref-set ac-maps/coins new-coins)))
         (catch Exception e (do (.printStackTrace e)
-                               (System/exit 1)
                                nil)))
       ;; (println (now) "cat :" (count (keys @ac-cats/cats)) ":" (vals @ac-cats/cats))
       )))
