@@ -22,7 +22,8 @@
   [ws ev-key f]
   (case ev-key
     :msg (set! (. ws -onmessage) f)
-    :open (set! (. ws -onopen) f)))
+    :open (set! (. ws -onopen) f)
+    :error (set! (. ws -onerror) f)))
 
 (defn close!
   "close websocket"
