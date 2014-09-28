@@ -92,7 +92,7 @@
   [theta radius acc-x acc-y img game-map
    pre-x pre-y pre-radius]
   (let [radian (/ (* Math/PI theta) 180.0)]
-    (map->Cat {:id (gensym)
+    (map->Cat {:id (str (gensym))
                :theta theta
                :radius radius
                :x (double (+ (. game-map -center-x)

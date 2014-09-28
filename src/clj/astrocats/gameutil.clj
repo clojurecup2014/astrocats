@@ -53,7 +53,7 @@
                     (* (:acc-y cat) -0.3)
                     (:acc-y cat))
         new-cat (if hitfrom-top
-                    {:radius (:radius hitfrom-top) :acc-y 0 :on (:on hitfrom-top) :energy 5}
+                    {:radius (:radius hitfrom-top) :acc-y 0 :on (:id hitfrom-top) :energy 5}
                     {:radius (:radius cat) :acc-y new-acc-y :on (:on cat) :energy (:energy cat)})]
     (-> cat
         (assoc-in [:acc-x] new-acc-x)

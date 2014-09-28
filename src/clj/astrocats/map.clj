@@ -17,7 +17,7 @@
 
 (defn init-coin
   [theta radius]
-  (map->Coin {:id (gensym) :radius radius
+  (map->Coin {:id (str (gensym)) :radius radius
               :theta theta :exist true}))
 
 (defrecord Block [id radius start end height]
@@ -30,7 +30,7 @@
 
 (defn init-block
   [start end radius height]
-  (map->Block {:id (gensym) :radius radius
+  (map->Block {:id (str (gensym)) :radius radius
                :start start :end end
                :height height}))
 
