@@ -96,9 +96,9 @@
                :theta theta
                :radius radius
                :x (double (+ (. game-map -center-x)
-                     (* (Math/cos radian) radius)))
-               :y (double (+ (. game-map -center-y)
                      (* (Math/sin radian) radius)))
+               :y (double (+ (. game-map -center-y)
+                     (* (Math/cos radian) radius)))
                :pre-x pre-x :pre-y pre-y
                :life 3
                :on ""
