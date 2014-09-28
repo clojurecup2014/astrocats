@@ -42,7 +42,7 @@
     (init-map 800 600 80))
   ([width height ground]
     (map->Map {:width width :height height :ground-y ground 
-               :center-x (/ width 2) :center-y 450})))
+               :center-x (/ width 2) :center-y (/ height 2)})))
 
 (def default-blocks
   [[10 30 240 10]
