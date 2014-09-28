@@ -196,6 +196,7 @@
 
 (defn calc-on
   [cat blocks maps]
+  (println "calc-on: " cat)
   (let [theta (/ (* (cat :theta) Math/PI) 180.0)
         theta-x (* (cat :acc-x) (Math/cos theta))
         theta-y (* (cat :acc-x) (Math/sin theta))

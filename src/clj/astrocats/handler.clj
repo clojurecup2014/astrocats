@@ -1,7 +1,6 @@
 (ns astrocats.handler
   (:require [astrocats.map :as ac-maps]
             [astrocats.cats :as ac-cats]
-            [astrocats.macros :refer [locksync]]
             [astrocats.util :refer [now]]
             [astrocats.gameutil :refer [calc-collisions]]
             [compojure.core :refer :all]
@@ -13,7 +12,7 @@
             [hiccup.page :refer :all]))
 
 (defn- send-all-cats! []
-  (locksync ac-cats/cats
+  (dosync
     (let [all-cats @ac-cats/cats]
       (doseq [s (keys all-cats)]
         (let [my-c (all-cats s)]
@@ -35,11 +34,10 @@
       (println "---")
       (Thread/sleep 1000)
       ;; update cats
-      (locking ac-cats/cats
-        (sync
-          (alter ac-cats/cats
-            (fn [x] (zipmap (-> x keys)
-                            (->> x vals (map #(update % ac-maps/default-map))))))))
+      (dosync
+        (alter ac-cats/cats
+          (fn [x] (zipmap (-> x keys)
+                          (->> x vals (map #(update % ac-maps/default-map)))))))
       (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
       (send-all-cats!)
       (println "---")
@@ -49,9 +47,9 @@
               new-coins (nth 1 res)]
           (println res)
           ;; update vars
-          (locksync ac-cats/cats
+          (dosync
             (alter ac-cats/cats #(new-cats)))
-          (locksync ac-maps/coins
+          (dosync
             (alter ac-maps/coins #(new-coins))))
         (catch Exception e (.printStackTrace e))))))
 
