@@ -62,7 +62,7 @@
                     (* -0.2 (:acc-x cat))
                     (:acc-x cat))
         new-acc-y (if hitfrom-bottom
-                    (* (:acc-y cat) -0.3)
+                    (* (:acc-y cat) -0.1)
                     (:acc-y cat))
         new-cat (if hitfrom-top
                   {:radius (:radius hitfrom-top) :acc-y 0 :on (:id hitfrom-top) :energy 5}
@@ -199,7 +199,7 @@
                      :rad-y (* (:acc-y cat) (Math/cos theta))
                      :acc-y (if (< (:acc-y cat) 0)
                               (+ (:acc-y cat) 0.5)
-                              (if (> (:acc-y cat) 3.5)
+                              (if (> (:acc-y cat) 1.5)
                                 (+ (:acc-y cat) 0.01)
                                 (+ (:acc-y cat) 0.25)))}
                     {:radius (:radius cat)
