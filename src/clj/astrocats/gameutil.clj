@@ -42,7 +42,8 @@
                       (let [closest-cat (get-closest-block-with-r c same-rad-cats)]
                         (if (and (> (+ (:radius closest-cat) (:height closest-cat)) (:radius c))
                                  (< (:radius closest-cat) (:radius c))
-                             (neg? (- (:radius c) (:pre-radius c))))
+                             (neg? (- (- (:radius c) (:pre-radius c)) (- (:radius closest-cat) (:pre-radius closest-cat)))
+                                   ))
                           {:id (:id closest-cat) :radius (:radius closest-cat)}
                           false))
                       false)
@@ -50,7 +51,8 @@
                          (let [closest-cat (get-closest-block-with-r c same-rad-cats)]
                            (and (< (:radius closest-cat) (+ (:radius c) (:height c)))
                                 (> (+ (:height closest-cat) (:radius closest-cat)) (+ (:radius c) (:height c)))
-                                (pos? (- (:radius c) (:pre-radius c)))))
+                                (pos? (- (- (:radius c) (:pre-radius c)) (- (:radius closest-cat) (:pre-radius closest-cat)))
+                                      )))
                          false)
         test (println (count same-rad-cats) hitfrom-top " " hitfrom-bottom)]
     (if hitfrom-top
