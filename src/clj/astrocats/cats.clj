@@ -23,7 +23,7 @@
   (jump [this]
     (if (> (:energy this) 0)
       (-> this
-        (assoc-in [:acc-y] -8)
+        (assoc-in [:acc-y] -10)
         (update-in [:y] dec)
         (assoc-in [:on] "")
         (update-in [:energy] dec)
