@@ -2,18 +2,37 @@
   (:require [astrocats.map :as ac-maps]
             [astrocats.cats :as ac-cats]
             [astrocats.macros :refer [locksync]]
+            [astrocats.util :refer [now]]
             ;;[astrocats.gameutil :refer [collision]]
             [compojure.core :refer :all]
             [compojure.handler :as handler]
             [compojure.route :as route]
+            [ring-jetty.util.ws :as ws]
+            [clojure.data.json :refer [write-str read-str]]
             [hiccup.core :refer :all]
             [hiccup.page :refer :all]))
+
+(defn- send-all-cats! []
+  (locksync ac-cats/cats
+    (let [all-cats @ac-cats/cats]
+      (doseq [s (keys all-cats)]
+        (let [my-c (all-cats s)]
+          (doseq [c (vals all-cats)]
+            ;; TODO fix loop freeze bug
+            (try
+              (ws/send! s (-> c
+                              ac-cats/pack
+                              (assoc :type "cat"
+                                     :me (= my-c c))
+                              write-str))
+              (catch Exception e (do (.printStackTrace e)
+                                     nil)))))))))
 
 (defn init []
   (println "init")
   (future
     (while true
-      (println "begin loop")
+      (println "---")
       (Thread/sleep 1000)
       ;; update cats
       (locking ac-cats/cats
@@ -21,11 +40,9 @@
           (alter ac-cats/cats
             (fn [x] (zipmap (-> x keys)
                             (->> x vals (map update)))))))
+      (println (now) "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
+      (send-all-cats!)
       (println "---")
-      (println "cat :" (count (keys @ac-cats/cats)) ":" @ac-cats/cats)
-      (println "---")
-      (ac-cats/send-all-cats!)
-      (println "end loop")
       (comment
         (let [res (collision @ac-cats/cats @ac-maps/blocks @ac-maps/coins)
               new-cats (nth 0 res)

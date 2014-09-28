@@ -119,16 +119,3 @@
                :jump? false
                :key nil
                :score 0})))
-
-(defn send-all-cats! []
-  (locking @cats
-    (let [all-cats @cats]
-      (doseq [s (keys all-cats)]
-        (let [my-c (all-cats s)]
-          (doseq [c (vals all-cats)]
-            ;; TODO fix loop freeze bug
-            (ws/send! s #(-> c
-                             pack
-                             (assoc :type "cat"
-                                    :me (= my-c c))
-                             write-str))))))))
