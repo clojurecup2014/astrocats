@@ -19,9 +19,7 @@
 (defrecord Cat [id theta radius x y pre-x pre-y
                 life on width height moving
                 acc-x acc-y img energy charge-start
-                pre-radius last-hit-time damaged? jump?
-                key ; TODO remove?
-                score]
+                pre-radius last-hit-time damaged? jump? score]
   ICat
   (jump [this]
     (if (> (:energy this) 0)
@@ -122,5 +120,4 @@
                :last-hit-time 0
                :damaged? false
                :jump? false
-               :key nil
                :score 0})))
