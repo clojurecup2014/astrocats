@@ -1,15 +1,15 @@
-# astrocats
+# AstroCats
 
-A Clojure library designed to ... well, that part is up to you.
+AstroCats is a multiplayer online action game using WebSocket.
 
-## Usage
 
-   lein cljsbuild auto release
-   lein ring-jetty server
+## Play
 
-## License
+http://astrocats.net/
 
-Copyright © 2014 FIXME
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+## Clojure Cup's page
+
+https://clojurecup.com/#/apps/astrocats
+
+
